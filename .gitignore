@@ -43,6 +43,9 @@
 build/
 Build/
 build-*/
+Debug/
+Release/
+RelWithDebInfo/
 
 # CMake generated files
 CMakeFiles/
@@ -51,6 +54,8 @@ cmake_install.cmake
 Makefile
 install_manifest.txt
 compile_commands.json
+*.ninja
+.ninja*
 
 # Temporary files
 *.tmp
