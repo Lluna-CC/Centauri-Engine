@@ -1,2 +1,2 @@
 # Centauri-Engine
-Simple game engine made using Vulkan.
+Simple game engine using Vulkan.
