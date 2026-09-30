@@ -14,7 +14,7 @@ namespace Centauri {
 
       private:
         float x,y;
-    }
+    };
 
     class MouseButtonPressedEvent: public Event {
       public:
@@ -28,7 +28,7 @@ namespace Centauri {
       private:
         int buttonCode;
         
-    }
+    };
 
     class MouseButtonReleasedEvent: public Event {
       public:
@@ -42,7 +42,7 @@ namespace Centauri {
       private:
         int buttonCode;
         
-    }
+    };
 }
 
 #endif MOUSE_EVENT_H

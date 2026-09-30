@@ -17,7 +17,7 @@ namespace Centauri {
 
       protected:
         Entity* owner;
-    }
+    };
 }
 
 #endif //COMPONENT_H

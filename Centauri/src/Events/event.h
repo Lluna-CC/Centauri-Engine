@@ -12,7 +12,7 @@ namespace Centauri {
         Mouse = 1 << 3,
         MouseButton = 1 << 4,
         Window = 1 << 5
-    }
+    };
 
 
     class Event {
@@ -43,7 +43,7 @@ namespace Centauri {
     class EventListener {
       public:
         virtual ~EventListener() = default;
-        virtual void OnEvent(Event& e) = 0;
+        virtual void OnEvent(const Event& e) = 0;
     };
 
     class EventDispatcher {

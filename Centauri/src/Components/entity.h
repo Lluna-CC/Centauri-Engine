@@ -2,6 +2,9 @@
 #define ENTITY_H
 
 #include "component.h"
+#include <string>
+#include <vector>
+#include <memory>
 
 namespace Centauri {
     class Entity {
@@ -9,8 +12,11 @@ namespace Centauri {
         explicit Entity(const std::string& entityName) : name(entityName) {}      
         
         const std::string& GetName() const {return name;}
+        void SetActive(bool activate) {active = activate;}
+        bool IsActive() {return active;}
+        
         void Initialize();
-        void Update(float deltaTimne);
+        void Update(float deltaTime);
         void Render();
 
         template<typename T, typename... Args>
@@ -26,7 +32,8 @@ namespace Centauri {
       private:
         std::string name;
         std::vector<std::unique_ptr<Component>> components;
-    }
+        bool active;
+    };
 }
 
 #endif //ENTITY_H

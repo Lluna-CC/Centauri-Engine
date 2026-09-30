@@ -9,8 +9,8 @@ namespace Centauri {
     class EventSystem {
       public:
 
-        void AddListener(EventListner* listener);
-        void RemoveListener(EventListerner* listener);
+        void AddListener(EventListener* listener, int categoryFilter = -1);
+        void RemoveListener(EventListener* listener);
         void PublishEvent(const Event& e);
 
           //ADD QUEUED MODE
@@ -19,14 +19,14 @@ namespace Centauri {
         struct ListenerInfo {
           EventListener* listener;
           int categoryFilter;
-        }
+        };
 
         std::vector<ListenerInfo> listeners;
         //std::queue<std::unique_ptr<Event>> eventQueue;
         //std::mutex queueMutex;
         //bool inmediate mode = true;
       
-      }
+      };
 }
 
 #endif //EVENT_SYSYEM_H 

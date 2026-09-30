@@ -17,7 +17,7 @@ namespace Centauri {
       private:
         int keyCode;
         bool repeat;
-    }
+    };
 
     class KeyReleaseEvent: public Event {
       public: 
@@ -29,7 +29,7 @@ namespace Centauri {
         DEFINE_EVENT_TYPE(KeyReleaseEvent);
       private: 
         keyCode;
-    }
+    };
 }
 
 #endif KEY_EVENT_H

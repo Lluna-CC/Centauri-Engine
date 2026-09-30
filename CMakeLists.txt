@@ -8,6 +8,8 @@ project(${TEMPLATE_NAME})
 add_executable(${TEMPLATE_NAME} 
     TestApp/main.cpp 
     Centauri/src/Application/application.cpp
+    Centauri/src/Events/eventSystem.cpp
+    Centauri/src/Components/entity.cpp
 )
 set_target_properties (${TEMPLATE_NAME} PROPERTIES CXX_STANDARD 20)
 target_link_libraries (${TEMPLATE_NAME} Vulkan::cppm glfw)

@@ -14,7 +14,7 @@ namespace Centauri {
 
       private:
         int width, height;
-    }
+    };
 
     class WindowClosedEvent: public Event {
       public:
@@ -25,7 +25,7 @@ namespace Centauri {
 
       private:
         
-    }
+    };
 }
 
 #endif //WINDOW_EVENT_H
