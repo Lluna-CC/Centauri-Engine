@@ -9,21 +9,26 @@ namespace Centauri {
         float GetXPosition() {return x;}
         float GetYPosition() {return y;}
 
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Mouse | Centauri::EventCategory::Input}
+        virtual int GetCategoryFlags() const override {
+          return static_cast<int>(Centauri::EventCategory::Mouse) | static_cast<int>(Centauri::EventCategory::Input);
+        }
         DEFINE_EVENT_TYPE(MouseMovedEvent);
 
       private:
         float x,y;
     };
 
-    class MouseButtonPressedEvent: public Event {
+    class MouseButtonPressEvent: public Event {
       public:
-        MouseButtonPressedEvent(int button) : buttonCode(button) {}
+        MouseButtonPressEvent(int button) : buttonCode(button) {}
 
         int GetButton() {return buttonCode;}
 
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Mouse | Centauri::EventCategory::Input}
-        DEFINE_EVENT_TYPE(MouseButtonPressedEvent);
+        virtual int GetCategoryFlags() const override {
+          return static_cast<int>(Centauri::EventCategory::Mouse) | static_cast<int>(Centauri::EventCategory::Input);
+        }
+
+        DEFINE_EVENT_TYPE(MouseButtonPressEvent);
 
       private:
         int buttonCode;
@@ -36,7 +41,10 @@ namespace Centauri {
 
         int GetButton() {return buttonCode;}
 
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Mouse | Centauri::EventCategory::Input}
+        virtual int GetCategoryFlags() const override {
+          return static_cast<int>(Centauri::EventCategory::Mouse) | static_cast<int>(Centauri::EventCategory::Input);
+        }
+
         DEFINE_EVENT_TYPE(MouseButtonReleasedEvent);
 
       private:
@@ -45,4 +53,4 @@ namespace Centauri {
     };
 }
 
-#endif MOUSE_EVENT_H
+#endif //MOUSE_EVENT_H

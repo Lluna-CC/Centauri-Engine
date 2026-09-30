@@ -4,21 +4,21 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "../Events/eventSystem.h"
+#include "../Components/entity.h"
+
 namespace Centauri {
-  class Application {
+  class Application: public EventListener {
     public:
       Application() = default;
       virtual ~Application() = default;
 
-      void init();
-
-      void run();
-
-      //To be defined externally
-      Application* CreateApplication();
+      void Init();
+      void Run();
+      virtual void OnEvent(const Event& e);
 
     private:
-      GLFWwindow *window = nullptr;
+      //GLFWwindow *window = nullptr;
   };
 }
 #endif //APPLICATION_H

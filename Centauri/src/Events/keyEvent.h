@@ -10,7 +10,9 @@ namespace Centauri {
 
         int GetKeyCode() const {return keyCode;}
         bool IsRepeat() const {return repeat;}
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Keyboard | Centauri::EventCategory::Input}
+        virtual int GetCategoryFlags() const override {
+          return static_cast<int>(Centauri::EventCategory::Keyboard) | static_cast<int>(Centauri::EventCategory::Input);
+        }
 
         DEFINE_EVENT_TYPE(KeyPressEvent);
     
@@ -24,12 +26,14 @@ namespace Centauri {
         KeyReleaseEvent(int key) : keyCode(key) {}
 
         int GetKeyCode() const {return keyCode;}
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Keyboard | Centauri::EventCategory::Input}
+        virtual int GetCategoryFlags() const override {
+          return static_cast<int>(Centauri::EventCategory::Keyboard) | static_cast<int>(Centauri::EventCategory::Input);
+        }
 
         DEFINE_EVENT_TYPE(KeyReleaseEvent);
       private: 
-        keyCode;
+        int keyCode;
     };
 }
 
-#endif KEY_EVENT_H
+#endif //KEY_EVENT_H
