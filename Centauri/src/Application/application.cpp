@@ -32,8 +32,9 @@ namespace Centauri {
 
         surface = Surface::Create();
         std::cout << surface -> GetHeight() << std::endl;
-        EventSystem eSys;
-        eSys.AddListener(this);
+        EventSystem* eSys = new EventSystem();
+        eSys -> AddListener(this);
+        surface -> SetEventSystem(eSys);
         
         while (true) {
 

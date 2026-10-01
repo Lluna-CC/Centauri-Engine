@@ -20,7 +20,7 @@ namespace Centauri {
         //static Surface* Create(const SurfaceProps& props) override;
       private:
         GLFWwindow *window = nullptr;
-
+        
         static void OnResize(GLFWwindow* window, int width, int height);
     };
 }

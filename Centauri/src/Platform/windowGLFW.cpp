@@ -21,6 +21,7 @@ namespace Centauri {
 		window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 	    glfwSetFramebufferSizeCallback(window, OnResize);
+
     }
 
     unsigned int WindowGLFW::GetWidth() const {

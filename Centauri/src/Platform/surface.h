@@ -2,6 +2,7 @@
 #define SURFACE_H
 
 #include <string>
+#include "../Events/eventSystem.h"
 
 namespace Centauri {
 
@@ -24,6 +25,7 @@ namespace Centauri {
         virtual void OnUpdate() = 0;
         virtual unsigned int GetWidth() const = 0;
         virtual unsigned int GetHeight() const = 0;
+        void SetEventSystem(EventSystem* eventSys) {eventSystem = eventSys;}
 
         //virtual void SetVSync(bool enabled) = 0;
         //virtual bool IsVSync() const = 0;
@@ -33,6 +35,7 @@ namespace Centauri {
         unsigned int width;
         unsigned int height;
         std::string title;
+        EventSystem* eventSystem;
     };
 }
 
