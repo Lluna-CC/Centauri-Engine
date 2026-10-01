@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #include "../Events/eventSystem.h"
-#include "../Components/entity.h"
+#include "scene.h"
+#include "../Resources/resource.h"
 
 namespace Centauri {
   class Application: public EventListener {

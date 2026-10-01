@@ -28,7 +28,7 @@ namespace Centauri {
     }
     
     void Application::Run() {
-        std::cout << "Centauri Engine !!!" << std::endl << std::endl;
+        std::cout << "Centauri Engine !!!" << std::endl;
 
         EventSystem eSys;
         eSys.AddListener(this);
