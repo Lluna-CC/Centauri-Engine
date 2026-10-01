@@ -30,6 +30,8 @@ namespace Centauri {
     void Application::Run() {
         std::cout << "Centauri Engine !!!" << std::endl;
 
+        surface = Surface::Create();
+        std::cout << surface -> GetHeight() << std::endl;
         EventSystem eSys;
         eSys.AddListener(this);
         

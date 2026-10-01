@@ -1,12 +1,9 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include "../Events/eventSystem.h"
 #include "scene.h"
-#include "../Resources/resource.h"
+#include "../Platform/windowGLFW.h"
 
 namespace Centauri {
   class Application: public EventListener {
@@ -19,7 +16,7 @@ namespace Centauri {
       virtual void OnEvent(const Event& e);
 
     private:
-      //GLFWwindow *window = nullptr;
+      Surface *surface = nullptr;
   };
 }
 #endif //APPLICATION_H
