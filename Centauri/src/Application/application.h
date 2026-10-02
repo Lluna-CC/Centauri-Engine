@@ -3,7 +3,7 @@
 
 #include "../Events/eventSystem.h"
 #include "scene.h"
-#include "../Platform/windowGLFW.h"
+#include "../Platform/vulkanGLFWWindow.h"
 
 namespace Centauri {
   class Application: public EventListener {

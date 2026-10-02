@@ -25,6 +25,8 @@ namespace Centauri {
         virtual void OnUpdate() = 0;
         virtual unsigned int GetWidth() const = 0;
         virtual unsigned int GetHeight() const = 0;
+        virtual bool Closed() const = 0;
+        
         void SetEventSystem(EventSystem* eventSys) {eventSystem = eventSys;}
 
         //virtual void SetVSync(bool enabled) = 0;

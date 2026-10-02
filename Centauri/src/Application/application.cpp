@@ -36,7 +36,7 @@ namespace Centauri {
         eSys -> AddListener(this);
         surface -> SetEventSystem(eSys);
         
-        while (true) {
+        while (!(surface -> Closed())) {
 
         }
     }

@@ -1,21 +1,27 @@
-#ifndef WINDOW_GLFW_H
-#define WINDOW_GLFW_H
+#ifndef VULKAN_WINDOW_GLFW_H
+#define VULKAN_WINDOW_GLFW_H
 
-#include "surface.h"
+#include "vulkanSurface.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+
+
 namespace Centauri {
-    class WindowGLFW : public Surface {
+    class VulkanGLFWWindow : public VulkanSurface {
       public:
-        WindowGLFW(const SurfaceProps& props);
-        virtual ~WindowGLFW() override;
+        VulkanGLFWWindow(const SurfaceProps& props);
+        virtual ~VulkanGLFWWindow() override;
         virtual void OnUpdate() override;
 
         virtual void Initialize() override;
         virtual unsigned int GetWidth() const override;
         virtual unsigned int GetHeight() const override;
+        virtual bool Closed() const override;
+
+        virtual VkSurfaceKHR GetVulkanSurface(VkInstance& instance) override;
+
 
         //static Surface* Create(const SurfaceProps& props) override;
       private:
@@ -25,4 +31,4 @@ namespace Centauri {
     };
 }
 
-#endif //WINDOW_GLFW_H
+#endif //VULKAN_WINDOW_GLFW_H
