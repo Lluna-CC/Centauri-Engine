@@ -8,7 +8,7 @@ namespace Centauri {
       private:
         vk::raii::DescriptorSetLayout descriptorSetLayout = nullptr;
         vk::raii::PipelineLayout pipelineLayout = nullptr;
-	    vk::raii::Pipeline graphicsPipeline = nullptr;
+	      vk::raii::Pipeline graphicsPipeline = nullptr;
     };
 }
 

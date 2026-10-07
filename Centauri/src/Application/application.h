@@ -4,12 +4,13 @@
 #include "../Events/eventSystem.h"
 #include "scene.h"
 #include "../Platform/vulkanGLFWWindow.h"
+#include "../Platform/vulkanPlatform.h"
 
 namespace Centauri {
   class Application: public EventListener {
     public:
       Application() = default;
-      virtual ~Application() = default;
+      virtual ~Application();
 
       void Init();
       void Run();
@@ -17,6 +18,7 @@ namespace Centauri {
 
     private:
       Surface *surface = nullptr;
+      RenderPlatform* platform = nullptr;
   };
 }
 #endif //APPLICATION_H

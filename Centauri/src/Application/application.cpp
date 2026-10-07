@@ -4,9 +4,8 @@
 constexpr uint32_t WIDTH  = 800;
 constexpr uint32_t HEIGHT = 600;
 
-#include "../Events/keyEvent.h"
 #include <iostream>
-#include "../Events/mouseEvent.h"
+
 
 namespace Centauri {
    
@@ -35,10 +34,18 @@ namespace Centauri {
         EventSystem* eSys = new EventSystem();
         eSys -> AddListener(this);
         surface -> SetEventSystem(eSys);
+
+        //ADD ERROR CORRECTION
+        platform = RenderPlatform::CreateRenderPlatform(*(dynamic_cast<VulkanSurface*> (surface)));
         
         while (!(surface -> Closed())) {
 
         }
+    }
+
+    Application::~Application() {
+        delete surface;
+        delete platform;
     }
 
     

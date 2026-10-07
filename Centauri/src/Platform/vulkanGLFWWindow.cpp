@@ -49,7 +49,7 @@ namespace Centauri {
         return glfwWindowShouldClose(window);
     }
 
-    VkSurfaceKHR VulkanGLFWWindow::GetVulkanSurface(VkInstance& instance) {
+    VkSurfaceKHR VulkanGLFWWindow::GetVulkanSurface(const VkInstance& instance) const {
         VkSurfaceKHR _surf;
 		if (glfwCreateWindowSurface(instance, window, nullptr, &_surf) != 0) {
 			throw std::runtime_error("failed to create window surface!");

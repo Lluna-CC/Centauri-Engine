@@ -1,11 +1,19 @@
 #ifndef VULKAN_RENDERER_H
 #define VULKAN_RENDERER_H
 
+#include <vulkan/vulkan_raii.hpp>
+#include "renderer.h"
+#include <vector>
+#include "../Platform/vulkanPlatform.h"
+
 namespace Centauri {
-    class VulkanRenerer : public Renderer {
+    class VulkanRenderer : public Renderer {
       public:
+        VulkanRenderer(const VulkanPlatform& plat);
 
       private:
+        void InitializeRenderer(const VulkanPlatform& plat);
+      
         void createSwapChain();
         void createImageViews();
         void createCommandPools();
@@ -38,6 +46,7 @@ namespace Centauri {
         vk::raii::Image depthImage = nullptr;
         vk::raii::DeviceMemory depthImageMemory = nullptr;
         vk::raii::ImageView depthImageView = nullptr;
+    
     };
 }
 

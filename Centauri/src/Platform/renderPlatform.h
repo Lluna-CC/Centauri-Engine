@@ -8,7 +8,7 @@ namespace Centauri {
       public:
         virtual ~RenderPlatform() = default;
 
-        static RenderPlatform* CreateRenderPlatform(const Surface& surf);
+        static RenderPlatform* CreateRenderPlatform(const VulkanSurface& surf);
     };
 }
 

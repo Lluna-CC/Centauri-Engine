@@ -16,7 +16,7 @@ namespace Centauri {
         virtual unsigned int GetHeight() const = 0;
         virtual bool Closed() const = 0;
 
-        virtual VkSurfaceKHR GetVulkanSurface(VkInstance& instance) = 0;
+        virtual VkSurfaceKHR GetVulkanSurface(const VkInstance& instance) const = 0;
 
     };
 }

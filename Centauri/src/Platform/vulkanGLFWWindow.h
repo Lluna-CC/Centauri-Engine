@@ -20,7 +20,7 @@ namespace Centauri {
         virtual unsigned int GetHeight() const override;
         virtual bool Closed() const override;
 
-        virtual VkSurfaceKHR GetVulkanSurface(VkInstance& instance) override;
+        virtual VkSurfaceKHR GetVulkanSurface(const VkInstance& instance) const override;
 
 
         //static Surface* Create(const SurfaceProps& props) override;
