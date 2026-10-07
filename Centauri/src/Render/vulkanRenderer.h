@@ -14,13 +14,17 @@ namespace Centauri {
       private:
         void InitializeRenderer(const VulkanPlatform& plat);
       
-        void createSwapChain();
+        void createSwapChain(vk::raii::SurfaceKHR& surface, vk::SurfaceCapabilitiesKHR const &capabilities, std::vector<vk::SurfaceFormatKHR> const &availableFormats, std::vector<vk::PresentModeKHR> const &availablePresents, int width, int height);
         void createImageViews();
-        void createCommandPools();
-		void createColorResources();
-		void createDepthResources();
+        void createCommandPools(uint32_t graphicsQueueIndex);
+		void createColorResources(uint32_t graphicsQueueIndex);
+		void createDepthResources(const vk::FormatProperties &props, uint32_t graphicsQueueIndex);
         void createCommandBuffers();
 		void createSyncObjects();
+
+        static const int MAX_FRAMES_IN_FLIGHT = 2;
+
+        vk::raii::Device dev = nullptr;
         
         vk::raii::SwapchainKHR swapChain = nullptr;
         vk::Extent2D swapChainExtent;
