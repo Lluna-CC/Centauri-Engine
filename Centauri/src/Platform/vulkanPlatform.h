@@ -13,11 +13,20 @@ namespace Centauri {
         virtual void InitializePlatform(const VulkanSurface& surf);
         VulkanPlatform(const VulkanSurface& surf);
         
+        /*
+        vk::raii::Device& GetDevice() {return dev;}
+        vk::raii::Queue& GetGraphicsQueue() {return graphicsQueue;}
+        vk::raii::SwapchainKHR& GetSwapChain() {return swapChain;}
+        vk::Extent2D& GetSwapChainExtent() {return swapChainExtent;}
+        vk::SurfaceFormatKHR& GetSwapChainSurfaceFormat() {return swapChainSurfaceFormat;}
+      */
+      
       private:
 
         void CreateInstance();
         void ChoosePhysicalDevice();
         void CreateLogicalDevice();
+        void createSwapChain(int width, int height);
 
         virtual std::vector<const char*> RequiredInstanceExtensions();
         
@@ -30,6 +39,9 @@ namespace Centauri {
 	      vk::raii::Queue graphicsQueue = nullptr;
         
         vk::raii::SurfaceKHR surface = nullptr;
+        vk::raii::SwapchainKHR swapChain = nullptr;
+        vk::Extent2D swapChainExtent;
+        vk::SurfaceFormatKHR swapChainSurfaceFormat;
         
     };
 }

@@ -9,16 +9,15 @@
 namespace Centauri {
     class VulkanRenderer : public Renderer {
       public:
-        VulkanRenderer(const VulkanPlatform& plat);
+        VulkanRenderer(VulkanPlatform& plat);
 
       private:
-        void InitializeRenderer(const VulkanPlatform& plat);
+        void InitializeRenderer(VulkanPlatform& plat);
       
-        void createSwapChain(vk::raii::SurfaceKHR& surface, vk::SurfaceCapabilitiesKHR const &capabilities, std::vector<vk::SurfaceFormatKHR> const &availableFormats, std::vector<vk::PresentModeKHR> const &availablePresents, int width, int height);
         void createImageViews();
         void createCommandPools(uint32_t graphicsQueueIndex);
-		void createColorResources(uint32_t graphicsQueueIndex);
-		void createDepthResources(const vk::FormatProperties &props, uint32_t graphicsQueueIndex);
+		void createColorResources(uint32_t graphicsQueueIndex, vk::PhysicalDeviceMemoryProperties& memProperties);
+		void createDepthResources(const vk::FormatProperties &props, uint32_t graphicsQueueIndex, vk::PhysicalDeviceMemoryProperties& memProperties);
         void createCommandBuffers();
 		void createSyncObjects();
 
@@ -26,6 +25,7 @@ namespace Centauri {
 
         vk::raii::Device dev = nullptr;
         
+        vk::raii::Queue renderQueue = nullptr;
         vk::raii::SwapchainKHR swapChain = nullptr;
         vk::Extent2D swapChainExtent;
         vk::SurfaceFormatKHR swapChainSurfaceFormat;

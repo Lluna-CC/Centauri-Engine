@@ -3,56 +3,28 @@
 
 namespace Centauri {
 
-    VulkanRenderer::VulkanRenderer(const VulkanPlatform& plat) {
+    VulkanRenderer::VulkanRenderer(VulkanPlatform& plat) {
         InitializeRenderer(plat);
     }
 
-    void VulkanRenderer::InitializeRenderer(const VulkanPlatform& plat) {
+    void VulkanRenderer::InitializeRenderer(VulkanPlatform& plat) {
         
-    }
-
-    void VulkanRenderer::createSwapChain(vk::raii::SurfaceKHR& surface, vk::SurfaceCapabilitiesKHR const &capabilities, std::vector<vk::SurfaceFormatKHR> const &availableFormats, std::vector<vk::PresentModeKHR> const &availablePresents, int width, int height) {
-        
-        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
-			swapChainExtent = capabilities.currentExtent;
-		}
-        
-		swapChainExtent = vk::Extent2D {
-			std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
-			std::clamp<uint32_t>(height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
-		};
-
-        auto minImageCount = std::max(3u, capabilities.minImageCount);
-		if ((0 < capabilities.maxImageCount) && (capabilities.maxImageCount < minImageCount)) {
-			minImageCount = capabilities.maxImageCount;
-		}
-
-        const auto formatIt = std::ranges::find_if (availableFormats, [](const auto &format) {return format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear;}); 
-		if (formatIt != availableFormats.end()) swapChainSurfaceFormat = *formatIt;
-		else swapChainSurfaceFormat = availableFormats[0];
-
-        vk::PresentModeKHR present;
-		vk::SwapchainCreateInfoKHR swapChainCreateInfo{
-			.surface = *surface,
-			.minImageCount = minImageCount,
-			.imageFormat = swapChainSurfaceFormat.format,
-			.imageColorSpace = swapChainSurfaceFormat.colorSpace,
-			.imageExtent = swapChainExtent,
-			.imageArrayLayers = 1,
-			.imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
-			.imageSharingMode = vk::SharingMode::eExclusive,
-			.preTransform = capabilities.currentTransform,
-			.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
-			.presentMode = present,
-			.clipped = true,
-			.oldSwapchain = nullptr
-
-		};
-
-		swapChain = vk::raii::SwapchainKHR(dev, swapChainCreateInfo);
+		/*
+	
+		dev = plat.GetDevice();
+		swapChain = plat.GetSwapChain();
+		renderQueue = plat.GetGraphicsQueue();
+		swapChainExtent = plat.GetSwapChainExtent();
+		swapChainSurfaceFormat = plat.GetSwapChainSurfaceFormat();
 		swapChainImages = swapChain.getImages();
+		*/
+
+		createImageViews();
+		//createCommandPools(plat.GetGraphicsQueueIdx());
+		//createColorResources(plat.GetGraphicsQueueIdx(), plat.GetMemoryProperties());
+	}
+
     
-    }
     
     void VulkanRenderer::createImageViews() {
         assert(swapChainImageViews.empty());
@@ -70,20 +42,20 @@ namespace Centauri {
 		graphicsCommandPool = vk::raii::CommandPool(dev, gPoolInfo);
     }
 
-    void VulkanRenderer::createColorResources(uint32_t graphicsQueueIndex) {
+    void VulkanRenderer::createColorResources(uint32_t graphicsQueueIndex, vk::PhysicalDeviceMemoryProperties& memProperties) {
         vk::Format colorFormat = swapChainSurfaceFormat.format;
 
 		std::tie(colorImage, colorImageMemory) = createImage(dev, swapChainExtent.width, swapChainExtent.height, 1, vk::SampleCountFlagBits::e1, colorFormat, 
 															vk::ImageTiling::eOptimal,
 															vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment, 
-															vk::MemoryPropertyFlagBits::eDeviceLocal, graphicsQueueIndex);
+															vk::MemoryPropertyFlagBits::eDeviceLocal, graphicsQueueIndex, memProperties);
 		colorImageView = createImageView(dev, colorImage, colorFormat, vk::ImageAspectFlagBits::eColor, 1);
     }
 
-    void VulkanRenderer::createDepthResources(const vk::FormatProperties &props, uint32_t graphicsQueueIndex) {
+    void VulkanRenderer::createDepthResources(const vk::FormatProperties &props, uint32_t graphicsQueueIndex, vk::PhysicalDeviceMemoryProperties& memProperties) {
         
         vk::Format depthFormat = findSupportedFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint}, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment, props);
-		std::tie(depthImage, depthImageMemory) = createImage(dev, swapChainExtent.width, swapChainExtent.height, 1, vk::SampleCountFlagBits::e1,depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, graphicsQueueIndex);
+		std::tie(depthImage, depthImageMemory) = createImage(dev, swapChainExtent.width, swapChainExtent.height, 1, vk::SampleCountFlagBits::e1,depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, graphicsQueueIndex, memProperties);
 		depthImageView = createImageView(dev, depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth, 1);
         
     }
@@ -110,8 +82,7 @@ namespace Centauri {
     }
     
     Renderer* Renderer::CreateRenderer(RenderPlatform& plat) {
-        //VulkanRenderer vkRender;
-        //vkRender.Initialize(); 
-        return nullptr;
+
+        return new VulkanRenderer(*dynamic_cast<VulkanPlatform*> (&plat));
     }
 }

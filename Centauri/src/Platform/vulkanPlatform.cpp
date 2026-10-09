@@ -188,9 +188,56 @@ namespace Centauri {
 		graphicsQueue = vk::raii::Queue(dev, graphicsQueueIndex, 0);
     }
 
-    RenderPlatform* RenderPlatform::CreateRenderPlatform(const VulkanSurface& surf) {
+    void VulkanPlatform::createSwapChain(int width, int height) {
+        vk::SurfaceCapabilitiesKHR capabilities = physicalDev.getSurfaceCapabilitiesKHR(*surface);
+		std::vector<vk::SurfaceFormatKHR> availableFormats = physicalDev.getSurfaceFormatsKHR(*surface);
+		std::vector<vk::PresentModeKHR> availablePresents = physicalDev.getSurfacePresentModesKHR(*surface);
+
+        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+			swapChainExtent = capabilities.currentExtent;
+		}
+        
+		swapChainExtent = vk::Extent2D {
+			std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+			std::clamp<uint32_t>(height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
+		};
+
+        auto minImageCount = std::max(3u, capabilities.minImageCount);
+		if ((0 < capabilities.maxImageCount) && (capabilities.maxImageCount < minImageCount)) {
+			minImageCount = capabilities.maxImageCount;
+		}
+
+        const auto formatIt = std::ranges::find_if (availableFormats, [](const auto &format) {return format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear;}); 
+		if (formatIt != availableFormats.end()) swapChainSurfaceFormat = *formatIt;
+		else swapChainSurfaceFormat = availableFormats[0];
+
+        vk::PresentModeKHR present;
+		vk::SwapchainCreateInfoKHR swapChainCreateInfo{
+			.surface = *surface,
+			.minImageCount = minImageCount,
+			.imageFormat = swapChainSurfaceFormat.format,
+			.imageColorSpace = swapChainSurfaceFormat.colorSpace,
+			.imageExtent = swapChainExtent,
+			.imageArrayLayers = 1,
+			.imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
+			.imageSharingMode = vk::SharingMode::eExclusive,
+			.preTransform = capabilities.currentTransform,
+			.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
+			.presentMode = present,
+			.clipped = true,
+			.oldSwapchain = nullptr
+
+		};
+
+		swapChain = vk::raii::SwapchainKHR(dev, swapChainCreateInfo);
+	
+    }
+	
+	
+	RenderPlatform* RenderPlatform::CreateRenderPlatform(const VulkanSurface& surf) {
         return new VulkanPlatform(surf);
     }
+
 
         
 }

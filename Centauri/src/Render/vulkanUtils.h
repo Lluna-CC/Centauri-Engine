@@ -11,8 +11,17 @@ namespace Centauri {
 	
 		return vk::raii::ImageView(dev, imageViewCreateInfo);
     }
+    
+    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, vk::PhysicalDeviceMemoryProperties memProperties) {
+		
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
+			if ((typeFilter & (1 << i)) && ((memProperties.memoryTypes[i].propertyFlags & properties) == properties)) return i;
+		}
 
-    std::pair<vk::raii::Image, vk::raii::DeviceMemory> createImage(const vk::raii::Device& dev, uint32_t width, uint32_t height, uint32_t levels, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, uint32_t qIdx) {
+		throw std::runtime_error("failed to find suitable memory type!");
+	}
+
+    std::pair<vk::raii::Image, vk::raii::DeviceMemory> createImage(const vk::raii::Device& dev, uint32_t width, uint32_t height, uint32_t levels, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, uint32_t qIdx, vk::PhysicalDeviceMemoryProperties memProperties) {
 		vk::ImageCreateInfo imageInfo {
 			.imageType = vk::ImageType::e2D,
 			.format = format,
@@ -32,7 +41,7 @@ namespace Centauri {
 		vk::MemoryRequirements memImageRequirements = image.getMemoryRequirements();
 		vk::MemoryAllocateInfo allocInfo {
 			.allocationSize = memImageRequirements.size, 
-			//.memoryTypeIndex = findMemoryType(memImageRequirements.memoryTypeBits, properties)
+			.memoryTypeIndex = findMemoryType(memImageRequirements.memoryTypeBits, properties, memProperties)
 		};
 
 		vk::raii::DeviceMemory imageMemory = vk::raii::DeviceMemory(dev, allocInfo);
@@ -53,13 +62,6 @@ namespace Centauri {
 		throw std::runtime_error("failed to find supported format");
 	}
     
-    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, vk::PhysicalDeviceMemoryProperties memProperties) {
-		
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
-			if ((typeFilter & (1 << i)) && ((memProperties.memoryTypes[i].propertyFlags & properties) == properties)) return i;
-		}
-
-		throw std::runtime_error("failed to find suitable memory type!");
-	}
+  
 
 }
