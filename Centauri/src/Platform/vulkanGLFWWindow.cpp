@@ -6,6 +6,8 @@ namespace Centauri {
         height = props.height;
         width = props.width;
         title = props.title;
+
+        Initialize();
     }
 
     void VulkanGLFWWindow::OnUpdate() {
@@ -21,6 +23,7 @@ namespace Centauri {
 		window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 	    glfwSetFramebufferSizeCallback(window, OnResize);
+        
 
     }
 
@@ -37,7 +40,7 @@ namespace Centauri {
         glfwDestroyWindow(window);
     }
 
-    Surface* Surface::Create(const SurfaceProps& props) {
+    Surface* Surface::CreateSurface(const SurfaceProps& props) {
         return new VulkanGLFWWindow(props);
     }
 
@@ -51,6 +54,8 @@ namespace Centauri {
 
     VkSurfaceKHR VulkanGLFWWindow::GetVulkanSurface(const VkInstance& instance) const {
         VkSurfaceKHR _surf;
+        if (window == nullptr) throw std::runtime_error("null window??");
+
 		if (glfwCreateWindowSurface(instance, window, nullptr, &_surf) != 0) {
 			throw std::runtime_error("failed to create window surface!");
 		}

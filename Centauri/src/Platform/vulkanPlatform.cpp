@@ -1,16 +1,31 @@
 #include "vulkanPlatform.h"
 #include <map>
 
+#include <iostream>
 namespace Centauri {
 
     VulkanPlatform::~VulkanPlatform() {
 
     }
 
-	VulkanPlatform::VulkanPlatform(const VulkanSurface& surf) {
+	VulkanPlatform::VulkanPlatform(VulkanSurface* surf) {
 		InitializePlatform(surf);
 	}
 
+	void VulkanPlatform::SetFramesInFlight(uint frames_in_flight) {
+		CreateSyncObjects(frames_in_flight);
+	}
+	
+	std::vector<vk::raii::CommandBuffer> VulkanPlatform::CreateCommandBuffers(uint count) {
+		vk::CommandBufferAllocateInfo gAllocInfo{
+			.commandPool = graphicsCommandPool,
+			.level = vk::CommandBufferLevel::ePrimary, 
+			.commandBufferCount = count
+		};
+
+		return std::move(vk::raii::CommandBuffers(dev,gAllocInfo));
+	}
+	
 	std::vector<const char*> VulkanPlatform::RequiredInstanceExtensions() {
 		uint32_t glfwExtensionCount = 0;
 		auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -19,14 +34,18 @@ namespace Centauri {
 		return extensions;
 	}
 
-    void VulkanPlatform::InitializePlatform(const VulkanSurface& surf) {
+    void VulkanPlatform::InitializePlatform(VulkanSurface* surf) {
         CreateInstance();
         
-		VkSurfaceKHR vkSurf = surf.GetVulkanSurface(*inst);
+		VkSurfaceKHR vkSurf = surf -> GetVulkanSurface(*inst);
 		surface = vk::raii::SurfaceKHR(inst, vkSurf);
         
+		
 		ChoosePhysicalDevice();
 		CreateLogicalDevice();
+		
+		CreateSwapChain(surf -> GetHeight(), surf -> GetWidth());
+		CreateCommandPools();
     }
 
     void VulkanPlatform::CreateInstance() {
@@ -145,7 +164,6 @@ namespace Centauri {
 
     void VulkanPlatform::CreateLogicalDevice() {
 		std::vector<vk::QueueFamilyProperties> queueFamilyProps = physicalDev.getQueueFamilyProperties();
-		
 		for (uint i = 0; i < queueFamilyProps.size(); ++i) {
 			if ((queueFamilyProps[i].queueFlags & vk::QueueFlagBits::eGraphics) && physicalDev.getSurfaceSupportKHR(i, *surface)) {
 				graphicsQueueIndex = i;
@@ -178,17 +196,18 @@ namespace Centauri {
 		
 		vk::DeviceCreateInfo devCreateInf {
 			.pNext = &featureChain.get<vk::PhysicalDeviceFeatures2>(),
-			.queueCreateInfoCount = 2,
+			.queueCreateInfoCount = 1,
 			.pQueueCreateInfos = deviceQCreateInfos,
 			.enabledExtensionCount = static_cast<uint32_t>(requiredDeviceExtension.size()),
 			.ppEnabledExtensionNames = requiredDeviceExtension.data()
 		};
 
 		dev = vk::raii::Device(physicalDev, devCreateInf);
+		
 		graphicsQueue = vk::raii::Queue(dev, graphicsQueueIndex, 0);
-    }
+	}
 
-    void VulkanPlatform::createSwapChain(int width, int height) {
+    void VulkanPlatform::CreateSwapChain(int width, int height) {
         vk::SurfaceCapabilitiesKHR capabilities = physicalDev.getSurfaceCapabilitiesKHR(*surface);
 		std::vector<vk::SurfaceFormatKHR> availableFormats = physicalDev.getSurfaceFormatsKHR(*surface);
 		std::vector<vk::PresentModeKHR> availablePresents = physicalDev.getSurfacePresentModesKHR(*surface);
@@ -230,13 +249,31 @@ namespace Centauri {
 		};
 
 		swapChain = vk::raii::SwapchainKHR(dev, swapChainCreateInfo);
-	
+		swapChainImages = swapChain.getImages();
     }
 	
+	void VulkanPlatform::CreateCommandPools() {
+		vk::CommandPoolCreateInfo gPoolInfo {
+			.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+			.queueFamilyIndex = graphicsQueueIndex
+		};
+		graphicsCommandPool = vk::raii::CommandPool(dev, gPoolInfo);
+	}
 	
-	RenderPlatform* RenderPlatform::CreateRenderPlatform(const VulkanSurface& surf) {
-        return new VulkanPlatform(surf);
+	RenderPlatform* RenderPlatform::CreateRenderPlatform(Surface* surf) {
+        return new VulkanPlatform(dynamic_cast<VulkanSurface*> (surf));
     }
+
+	void VulkanPlatform::CreateSyncObjects(uint frames_in_flight) {
+		assert(presentCompleteSemaphores.empty() && renderFinishedSemaphores.empty() && inFlightFences.empty());
+		for (uint i = 0; i < frames_in_flight; ++i) {
+			presentCompleteSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
+			inFlightFences.emplace_back(dev, vk::FenceCreateInfo{.flags = vk::FenceCreateFlagBits::eSignaled});
+		}
+		for (uint i = 0; i < swapChainImages.size(); ++i) {
+			renderFinishedSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
+		}
+	}
 
 
         

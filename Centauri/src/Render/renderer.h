@@ -8,7 +8,7 @@ namespace Centauri {
       public:
         virtual ~Renderer() = default;
 
-        static Renderer* CreateRenderer(RenderPlatform& plat);
+        static Renderer* CreateRenderer(RenderPlatform* plat);
       private:
         
     };

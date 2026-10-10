@@ -10,24 +10,23 @@ namespace Centauri {
       public:
         virtual ~VulkanPlatform();
 
-        virtual void InitializePlatform(const VulkanSurface& surf);
-        VulkanPlatform(const VulkanSurface& surf);
+        virtual void InitializePlatform(VulkanSurface* surf);
+        VulkanPlatform(VulkanSurface* surf);
         
-        /*
-        vk::raii::Device& GetDevice() {return dev;}
-        vk::raii::Queue& GetGraphicsQueue() {return graphicsQueue;}
-        vk::raii::SwapchainKHR& GetSwapChain() {return swapChain;}
-        vk::Extent2D& GetSwapChainExtent() {return swapChainExtent;}
-        vk::SurfaceFormatKHR& GetSwapChainSurfaceFormat() {return swapChainSurfaceFormat;}
-      */
+        std::vector<vk::raii::CommandBuffer> CreateCommandBuffers(uint count);
+        
+        void SetFramesInFlight(uint frames_in_flight);
+        
       
       private:
 
         void CreateInstance();
         void ChoosePhysicalDevice();
         void CreateLogicalDevice();
-        void createSwapChain(int width, int height);
-
+        void CreateSwapChain(int width, int height);
+        void CreateCommandPools();
+        void CreateSyncObjects(uint frames_in_flight);
+    
         virtual std::vector<const char*> RequiredInstanceExtensions();
         
         vk::raii::Context context;
@@ -42,6 +41,17 @@ namespace Centauri {
         vk::raii::SwapchainKHR swapChain = nullptr;
         vk::Extent2D swapChainExtent;
         vk::SurfaceFormatKHR swapChainSurfaceFormat;
+
+        //Should this be on renderer?
+        std::vector<vk::Image> swapChainImages;
+        std::vector<vk::raii::ImageView> swapChainImageViews;
+
+        vk::raii::CommandPool graphicsCommandPool = nullptr;
+
+        std::vector<vk::raii::Semaphore> presentCompleteSemaphores;
+        std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
+        std::vector<vk::raii::Fence> inFlightFences;
+
         
     };
 }

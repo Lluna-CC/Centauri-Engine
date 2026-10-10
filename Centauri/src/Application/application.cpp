@@ -29,15 +29,17 @@ namespace Centauri {
     void Application::Run() {
         std::cout << "Centauri Engine !!!" << std::endl;
 
-        surface = Surface::Create();
+        surface = Surface::CreateSurface();
         std::cout << surface -> GetHeight() << std::endl;
         EventSystem* eSys = new EventSystem();
         eSys -> AddListener(this);
         surface -> SetEventSystem(eSys);
 
         //ADD ERROR CORRECTION
-        platform = RenderPlatform::CreateRenderPlatform(*(dynamic_cast<VulkanSurface*> (surface)));
+        platform = RenderPlatform::CreateRenderPlatform(surface);
         
+        renderer = Renderer::CreateRenderer(platform);
+
         while (!(surface -> Closed())) {
 
         }

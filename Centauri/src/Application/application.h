@@ -5,6 +5,7 @@
 #include "scene.h"
 #include "../Platform/vulkanGLFWWindow.h"
 #include "../Platform/vulkanPlatform.h"
+#include "../Render/vulkanRenderer.h"
 
 namespace Centauri {
   class Application: public EventListener {
@@ -17,8 +18,9 @@ namespace Centauri {
       virtual void OnEvent(const Event& e);
 
     private:
-      Surface *surface = nullptr;
+      Surface* surface = nullptr;
       RenderPlatform* platform = nullptr;
+      Renderer* renderer = nullptr;
   };
 }
 #endif //APPLICATION_H

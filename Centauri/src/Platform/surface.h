@@ -32,7 +32,7 @@ namespace Centauri {
         //virtual void SetVSync(bool enabled) = 0;
         //virtual bool IsVSync() const = 0;
     
-        static Surface* Create(const SurfaceProps& props = SurfaceProps());
+        static Surface* CreateSurface(const SurfaceProps& props = SurfaceProps());
 
       protected:
         unsigned int width;
