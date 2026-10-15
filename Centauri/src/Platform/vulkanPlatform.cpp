@@ -44,7 +44,7 @@ namespace Centauri {
 		ChoosePhysicalDevice();
 		CreateLogicalDevice();
 		
-		CreateSwapChain(surf -> GetHeight(), surf -> GetWidth());
+		//CreateSwapChain(surf -> GetHeight(), surf -> GetWidth());
 		CreateCommandPools();
     }
 
@@ -207,7 +207,8 @@ namespace Centauri {
 		graphicsQueue = vk::raii::Queue(dev, graphicsQueueIndex, 0);
 	}
 
-    void VulkanPlatform::CreateSwapChain(int width, int height) {
+    void VulkanPlatform::CreateSwapChain(int width, int height, vk::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, 
+                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<vk::Image>& swapChainImages ) {
         vk::SurfaceCapabilitiesKHR capabilities = physicalDev.getSurfaceCapabilitiesKHR(*surface);
 		std::vector<vk::SurfaceFormatKHR> availableFormats = physicalDev.getSurfaceFormatsKHR(*surface);
 		std::vector<vk::PresentModeKHR> availablePresents = physicalDev.getSurfacePresentModesKHR(*surface);
@@ -248,8 +249,16 @@ namespace Centauri {
 
 		};
 
-		swapChain = vk::raii::SwapchainKHR(dev, swapChainCreateInfo);
+		// I have no clue of what to do here
+		
+		/* 
+		VkSwapchainKHR vkSwapchain;
+		vkCreateSwapchainKHR(*dev, swapChainCreateInfo, nullptr, &vkSwapchain);
+		
+		vkGetSwapchainImagesKHR();
+		swapChain = vk::SwapchainKHR(vkSwapchain);
 		swapChainImages = swapChain.getImages();
+		*/
     }
 	
 	void VulkanPlatform::CreateCommandPools() {

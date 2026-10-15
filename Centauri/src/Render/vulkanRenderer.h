@@ -12,14 +12,11 @@ namespace Centauri {
       public:
         VulkanRenderer(VulkanPlatform* plat);
 
+        //void SetPipeline(Pipeline* pipe) {pipeline = pipe}
+
       private:
         void InitializeRenderer();
-        //void createImageViews();
-       
-		//void createColorResources(uint32_t graphicsQueueIndex, vk::PhysicalDeviceMemoryProperties& memProperties);
-		//void createDepthResources(const vk::FormatProperties &props, uint32_t graphicsQueueIndex, vk::PhysicalDeviceMemoryProperties& memProperties);
 		
-
         static const int MAX_FRAMES_IN_FLIGHT = 2;
 
         //Move these to resorces 
@@ -41,7 +38,7 @@ namespace Centauri {
 
         vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
 
-        Pipeline pipeline;
+        Pipeline* pipeline;
 
         //Should we use shared pointers?
         VulkanPlatform* platform;

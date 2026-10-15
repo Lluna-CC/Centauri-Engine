@@ -17,13 +17,17 @@ namespace Centauri {
         
         void SetFramesInFlight(uint frames_in_flight);
         
-      
+        void CreateSwapChain(int width, int height, vk::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, 
+                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<vk::Image>& swapChainImages 
+        );
+
+     
+
       private:
 
         void CreateInstance();
         void ChoosePhysicalDevice();
         void CreateLogicalDevice();
-        void CreateSwapChain(int width, int height);
         void CreateCommandPools();
         void CreateSyncObjects(uint frames_in_flight);
     
@@ -38,9 +42,10 @@ namespace Centauri {
 	      vk::raii::Queue graphicsQueue = nullptr;
         
         vk::raii::SurfaceKHR surface = nullptr;
-        vk::raii::SwapchainKHR swapChain = nullptr;
-        vk::Extent2D swapChainExtent;
-        vk::SurfaceFormatKHR swapChainSurfaceFormat;
+        
+        //vk::raii::SwapchainKHR swapChain = nullptr;
+        //vk::Extent2D swapChainExtent;
+        //vk::SurfaceFormatKHR swapChainSurfaceFormat;
 
         //Should this be on renderer?
         std::vector<vk::Image> swapChainImages;

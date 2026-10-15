@@ -16,19 +16,8 @@ namespace Centauri {
         const std::string& GetName() const {return name;}
         bool IsLoaded() {return loaded;}
 
-        bool Load() {
-            loaded = doLoad();
-            return loaded;
-        }
-
-        void Unload() {
-            doUnload();
-            loaded = false;
-        }
-
-      protected:
-        virtual bool doLoad() = 0;
-        virtual bool doUnload() = 0;  
+        virtual bool Load() = 0;
+        virtual void Unload() = 0;
 
       private:
         std::string name;
