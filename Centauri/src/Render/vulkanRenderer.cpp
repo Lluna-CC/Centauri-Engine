@@ -2,8 +2,10 @@
 
 namespace Centauri {
 
-    VulkanRenderer::VulkanRenderer(VulkanPlatform* plat) {
+    VulkanRenderer::VulkanRenderer(VulkanPlatform* plat, ResourceManager* resMngr) {
         platform = plat;
+		resourceManager = resMngr;
+
 		InitializeRenderer();
 	}
 
@@ -11,6 +13,8 @@ namespace Centauri {
 	
 		graphicsCommandBuffers = platform -> CreateCommandBuffers(MAX_FRAMES_IN_FLIGHT);
     
+		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, 0, 0);
+		//colorAttachment = resourceManager -> Load<RenderAttachment>();
 		/*
 	
 		dev = plat.GetDevice();
@@ -26,8 +30,8 @@ namespace Centauri {
 		//createColorResources(plat.GetGraphicsQueueIdx(), plat.GetMemoryProperties());
 	}
     
-    Renderer* Renderer::CreateRenderer(RenderPlatform* plat) {
+    Renderer* Renderer::CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr) {
 
-        return new VulkanRenderer(dynamic_cast<VulkanPlatform*> (plat));
+        return new VulkanRenderer(dynamic_cast<VulkanPlatform*> (plat), resMngr);
     }
 }

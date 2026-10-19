@@ -10,13 +10,10 @@ namespace Centauri {
     
     class RenderAttachment : public Resource {
         public:
-            enum AttachmentType {
-                Depth,
-                Color
-            };
-
-            explicit RenderAttachment(const std::string& id, VulkanPlatform* plat, AttachmentType type,
-                            vk::SampleCountFlagBits msaa = vk::SampleCountFlagBits::e1) : Resource(id), vkPlat(plat), attType(type), msaaSamples(msaa) {}
+            explicit RenderAttachment(const std::string& id, VulkanPlatform* plat, int w, int h, vk::ImageUsageFlags usg, vk::Format form,
+                            vk::SampleCountFlagBits msaa = vk::SampleCountFlagBits::e1) : 
+                            Resource(id), vkPlat(plat), usage(usg), width(w), height(h),
+                            format(form), msaaSamples(msaa) {}
 
             ~RenderAttachment() override {
                 Unload();
@@ -33,6 +30,7 @@ namespace Centauri {
             vk::DeviceMemory memory;
             vk::DeviceSize offset;
             vk::ImageView imageView;
+            vk::Format format;
 
             int width = 0;
             int height = 0;
@@ -40,7 +38,7 @@ namespace Centauri {
             vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
 
             VulkanPlatform* vkPlat = nullptr;
-            AttachmentType attType;
+            vk::ImageUsageFlags usage;
         
             
     };

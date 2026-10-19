@@ -2,9 +2,13 @@
 
 namespace Centauri {
     bool RenderAttachment::Load() {
-        //Get Format from platform
-        //vk::Format colorFormat = swapChainSurfaceFormat.format;
-       
+        
+        std::tie(image, memory) = vkPlat -> CreateImage(width, height, 1, msaaSamples, format, 
+															vk::ImageTiling::eOptimal,
+															usage, 
+															vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+        imageView = vkPlat -> CreateImageView(image, format, vk::ImageAspectFlagBits::eColor, 1);	
         return true;
     }
 

@@ -37,8 +37,9 @@ namespace Centauri {
 
         //ADD ERROR CORRECTION
         platform = RenderPlatform::CreateRenderPlatform(surface);
-        
-        renderer = Renderer::CreateRenderer(platform);
+
+        ResourceManager* resourceManager = new ResourceManager;
+        renderer = Renderer::CreateRenderer(platform, resourceManager);
 
         while (!(surface -> Closed())) {
 

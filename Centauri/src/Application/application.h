@@ -6,6 +6,7 @@
 #include "../Platform/vulkanGLFWWindow.h"
 #include "../Platform/vulkanPlatform.h"
 #include "../Render/vulkanRenderer.h"
+#include "../Resources/resource.h"
 
 namespace Centauri {
   class Application: public EventListener {

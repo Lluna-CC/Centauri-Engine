@@ -17,12 +17,17 @@ namespace Centauri {
         
         void SetFramesInFlight(uint frames_in_flight);
         
-        void CreateSwapChain(int width, int height, vk::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, 
-                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<vk::Image>& swapChainImages 
+        void CreateSwapChain(int width, int height, VkSwapchainKHR* swapChain, vk::Extent2D& swapChainExtent, 
+                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<VkImage>& swapChainImages 
         );
 
-     
+        vk::ImageView CreateImageView(VkImage const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels);
 
+        std::pair<vk::raii::Image, vk::raii::DeviceMemory> CreateImage(
+          uint32_t width, uint32_t height, uint32_t levels, vk::SampleCountFlagBits numSamples, vk::Format format, 
+          vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties
+        );
+          
       private:
 
         void CreateInstance();
@@ -42,14 +47,10 @@ namespace Centauri {
 	      vk::raii::Queue graphicsQueue = nullptr;
         
         vk::raii::SurfaceKHR surface = nullptr;
-        
-        //vk::raii::SwapchainKHR swapChain = nullptr;
-        //vk::Extent2D swapChainExtent;
-        //vk::SurfaceFormatKHR swapChainSurfaceFormat;
-
-        //Should this be on renderer?
-        std::vector<vk::Image> swapChainImages;
-        std::vector<vk::raii::ImageView> swapChainImageViews;
+ 
+        uint32_t swapchainImgCount = 0;
+        //std::vector<vk::Image> swapChainImages;
+        //std::vector<vk::raii::ImageView> swapChainImageViews;
 
         vk::raii::CommandPool graphicsCommandPool = nullptr;
 

@@ -11,12 +11,12 @@ add_executable(${TEMPLATE_NAME}
     Centauri/src/Application/scene.cpp
     Centauri/src/Events/eventSystem.cpp
     Centauri/src/Components/entity.cpp
-    Centauri/src/Resources/resource.cpp
     Centauri/src/Platform/vulkanGLFWWindow.cpp
     Centauri/src/Platform/vulkanPlatform.cpp
     Centauri/src/Render/vulkanRenderer.cpp
     Centauri/src/Render/vulkanPipeline.cpp
     Centauri/src/Resources/renderAttachment.cpp
+    Centauri/src/Resources/swapchain.cpp
 
 )
 set_target_properties (${TEMPLATE_NAME} PROPERTIES CXX_STANDARD 20)

@@ -7,7 +7,7 @@
 namespace Centauri {
     class Swapchain : public Resource {
         public:
-            explicit Swapchain(const std::string& id, vulkanPlatform* plat, int w = 0, int h = 0) : Resource(id), vkPlat(plat), width(w), height(h) {}
+            explicit Swapchain(const std::string& id, VulkanPlatform* plat, int w = 0, int h = 0) : Resource(id), vkPlat(plat), width(w), height(h) {}
             
             ~Swapchain() override {
                 Unload();
@@ -20,14 +20,14 @@ namespace Centauri {
             vk::SurfaceFormatKHR GetFormat() {return swapChainSurfaceFormat;}
 
         private:
-            vk::SwapchainKHR swapChain;
+            VkSwapchainKHR* swapChain;
             vk::Extent2D swapChainExtent;
             vk::SurfaceFormatKHR swapChainSurfaceFormat;
 
-            std::vector<vk::Image> swapChainImages;
+            std::vector<VkImage> swapChainImages;
             std::vector<vk::ImageView> swapChainImageViews;
     
-            vulkanPlatform* vkPlat;
+            VulkanPlatform* vkPlat;
 
             int width;
             int height;

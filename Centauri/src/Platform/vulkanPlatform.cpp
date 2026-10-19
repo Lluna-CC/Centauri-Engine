@@ -207,8 +207,8 @@ namespace Centauri {
 		graphicsQueue = vk::raii::Queue(dev, graphicsQueueIndex, 0);
 	}
 
-    void VulkanPlatform::CreateSwapChain(int width, int height, vk::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, 
-                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<vk::Image>& swapChainImages ) {
+    void VulkanPlatform::CreateSwapChain(int width, int height, VkSwapchainKHR* swapChain, vk::Extent2D& swapChainExtent, 
+                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<VkImage>& swapChainImages ) {
         vk::SurfaceCapabilitiesKHR capabilities = physicalDev.getSurfaceCapabilitiesKHR(*surface);
 		std::vector<vk::SurfaceFormatKHR> availableFormats = physicalDev.getSurfaceFormatsKHR(*surface);
 		std::vector<vk::PresentModeKHR> availablePresents = physicalDev.getSurfacePresentModesKHR(*surface);
@@ -251,14 +251,18 @@ namespace Centauri {
 
 		// I have no clue of what to do here
 		
-		/* 
-		VkSwapchainKHR vkSwapchain;
-		vkCreateSwapchainKHR(*dev, swapChainCreateInfo, nullptr, &vkSwapchain);
 		
-		vkGetSwapchainImagesKHR();
-		swapChain = vk::SwapchainKHR(vkSwapchain);
-		swapChainImages = swapChain.getImages();
-		*/
+		vkCreateSwapchainKHR(*dev, swapChainCreateInfo, nullptr, swapChain);
+		
+		uint32_t imgCount = capabilities.maxImageCount;
+		VkResult res = vkGetSwapchainImagesKHR(*dev, *swapChain, &imgCount, swapChainImages.data());
+		
+		// DEBUG THINGS
+		// if (res == ??) {
+		// 
+		// }
+	
+		swapchainImgCount = imgCount;
     }
 	
 	void VulkanPlatform::CreateCommandPools() {
@@ -279,11 +283,64 @@ namespace Centauri {
 			presentCompleteSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
 			inFlightFences.emplace_back(dev, vk::FenceCreateInfo{.flags = vk::FenceCreateFlagBits::eSignaled});
 		}
-		for (uint i = 0; i < swapChainImages.size(); ++i) {
+		for (uint i = 0; i < swapchainImgCount; ++i) {
 			renderFinishedSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
 		}
 	}
 
 
-        
+    vk::ImageView VulkanPlatform::CreateImageView(VkImage const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels) {
+		vk::ImageViewCreateInfo imageViewCreateInfo{
+			.image = image,
+			.viewType = vk::ImageViewType::e2D,
+			.format = format,
+			.subresourceRange = {.aspectMask = aspectFlags, .levelCount = levels, .layerCount = 1} 	 
+		};
+	
+		VkImageView* view = new VkImageView;
+		vkCreateImageView(*dev, &*imageViewCreateInfo, nullptr, view);
+		return vk::ImageView(*view);
+	}
+	
+	uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, vk::PhysicalDeviceMemoryProperties memProperties) {
+		
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
+			if ((typeFilter & (1 << i)) && ((memProperties.memoryTypes[i].propertyFlags & properties) == properties)) return i;
+		}
+
+		throw std::runtime_error("failed to find suitable memory type!");
+	}
+
+	std::pair<vk::raii::Image, vk::raii::DeviceMemory> VulkanPlatform::CreateImage(
+		uint32_t width, uint32_t height, uint32_t levels, vk::SampleCountFlagBits numSamples, vk::Format format, 
+		vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties
+	) {
+		
+		vk::ImageCreateInfo imageInfo {
+			.imageType = vk::ImageType::e2D,
+			.format = format,
+			.extent = {width, height, 1},
+			.mipLevels = levels,
+			.arrayLayers = 1,
+			.samples = numSamples,
+			.tiling = tiling, 
+			.usage = usage,
+			.sharingMode = vk::SharingMode::eConcurrent,
+			.queueFamilyIndexCount = 1,
+			.pQueueFamilyIndices = &graphicsQueueIndex
+		};
+
+		vk::raii::Image image = vk::raii::Image(dev, imageInfo);
+	
+		vk::MemoryRequirements memImageRequirements = image.getMemoryRequirements();
+		vk::MemoryAllocateInfo allocInfo {
+			.allocationSize = memImageRequirements.size, 
+			.memoryTypeIndex = findMemoryType(memImageRequirements.memoryTypeBits, properties, physicalDev.getMemoryProperties())
+		};
+
+		vk::raii::DeviceMemory imageMemory = vk::raii::DeviceMemory(dev, allocInfo);
+		image.bindMemory(imageMemory, 0);
+
+		return {std::move(image), std::move(imageMemory)};
+	}
 }
