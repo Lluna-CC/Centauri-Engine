@@ -9,6 +9,10 @@ namespace Centauri {
 			swapChainImageViews.emplace_back(vkPlat -> CreateImageView(image, swapChainSurfaceFormat.format, vk::ImageAspectFlagBits::eColor, 1));
 		}
 
+        for (uint i = 0; i < swapChainImages.size(); ++i) {
+			renderFinishedSemaphores.push_back(vkPlat -> CreateSemaphore(vk::SemaphoreCreateInfo()));
+		}
+        
         return true;
     }
 

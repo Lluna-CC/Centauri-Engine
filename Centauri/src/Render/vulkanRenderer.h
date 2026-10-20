@@ -15,7 +15,10 @@ namespace Centauri {
         VulkanRenderer(VulkanPlatform* plat, ResourceManager* resMngr);
 
         virtual void SetWindowSize(int width, int height) override;
-        //void SetPipeline(Pipeline* pipe) {pipeline = pipe}
+        
+        virtual void StartRendering() override;
+        //virtual void RenderObject() = 0;
+        virtual void FinishRendering() override;
 
       private:
         void InitializeRenderer();

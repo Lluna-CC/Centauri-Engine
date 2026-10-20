@@ -262,7 +262,6 @@ namespace Centauri {
 		// 
 		// }
 	
-		swapchainImgCount = imgCount;
     }
 	
 	void VulkanPlatform::CreateCommandPools() {
@@ -282,9 +281,6 @@ namespace Centauri {
 		for (uint i = 0; i < frames_in_flight; ++i) {
 			presentCompleteSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
 			inFlightFences.emplace_back(dev, vk::FenceCreateInfo{.flags = vk::FenceCreateFlagBits::eSignaled});
-		}
-		for (uint i = 0; i < swapchainImgCount; ++i) {
-			renderFinishedSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
 		}
 	}
 

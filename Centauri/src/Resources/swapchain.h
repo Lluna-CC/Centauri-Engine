@@ -26,7 +26,9 @@ namespace Centauri {
 
             std::vector<VkImage> swapChainImages;
             std::vector<vk::ImageView> swapChainImageViews;
-    
+            
+            std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
+                
             VulkanPlatform* vkPlat;
 
             int width;

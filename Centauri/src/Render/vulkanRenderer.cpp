@@ -38,8 +38,18 @@ namespace Centauri {
 	}
 
     
-    Renderer* Renderer::CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr) {
+    void VulkanRenderer::StartRendering() {
+		
+	}
+    
+	void VulkanRenderer::FinishRendering() {
+
+	}
+	
+	
+	Renderer* Renderer::CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr) {
 
         return new VulkanRenderer(dynamic_cast<VulkanPlatform*> (plat), resMngr);
     }
+	
 }

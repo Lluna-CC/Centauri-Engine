@@ -32,6 +32,8 @@ namespace Centauri {
         [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
         vk::raii::PipelineLayout CreatePipelineLayout(vk::PipelineLayoutCreateInfo pipeLayoutInfo) {return vk::raii::PipelineLayout(dev, pipeLayoutInfo);}
         vk::raii::Pipeline CreatePipeline(vk::GraphicsPipelineCreateInfo graphicsInfo) {return vk::raii::Pipeline(dev, nullptr, graphicsInfo);}
+        vk::raii::Semaphore CreateSemaphore(vk::SemaphoreCreateInfo info) {return vk::raii::Semaphore(dev, info);}
+
       private:
 
         void CreateInstance();
@@ -52,7 +54,6 @@ namespace Centauri {
         
         vk::raii::SurfaceKHR surface = nullptr;
  
-        uint32_t swapchainImgCount = 0;
         //std::vector<vk::Image> swapChainImages;
         //std::vector<vk::raii::ImageView> swapChainImageViews;
 

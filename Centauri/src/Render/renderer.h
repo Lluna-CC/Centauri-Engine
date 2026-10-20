@@ -12,6 +12,10 @@ namespace Centauri {
         static Renderer* CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr);
 
         virtual void SetWindowSize(int width, int height) = 0;
+
+        virtual void StartRendering() = 0;
+        //virtual void RenderObject() = 0;
+        virtual void FinishRendering() = 0;
       
       protected:
         
