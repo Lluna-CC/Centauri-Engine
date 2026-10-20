@@ -13,6 +13,6 @@ namespace Centauri {
     }
 
     void Swapchain::Unload() {
-        
+        //Unload swapchain ??
     }
 }

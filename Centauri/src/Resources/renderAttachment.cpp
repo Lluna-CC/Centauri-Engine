@@ -13,7 +13,7 @@ namespace Centauri {
     }
 
     void RenderAttachment::Unload() {
-
+        //Should we unload memory???
     }
    
     

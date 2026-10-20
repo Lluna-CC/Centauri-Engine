@@ -27,7 +27,11 @@ namespace Centauri {
           uint32_t width, uint32_t height, uint32_t levels, vk::SampleCountFlagBits numSamples, vk::Format format, 
           vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties
         );
-          
+
+        vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const;
+        [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
+        vk::raii::PipelineLayout CreatePipelineLayout(vk::PipelineLayoutCreateInfo pipeLayoutInfo) {return vk::raii::PipelineLayout(dev, pipeLayoutInfo);}
+        vk::raii::Pipeline CreatePipeline(vk::GraphicsPipelineCreateInfo graphicsInfo) {return vk::raii::Pipeline(dev, nullptr, graphicsInfo);}
       private:
 
         void CreateInstance();

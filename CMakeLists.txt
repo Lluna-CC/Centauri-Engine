@@ -14,10 +14,9 @@ add_executable(${TEMPLATE_NAME}
     Centauri/src/Platform/vulkanGLFWWindow.cpp
     Centauri/src/Platform/vulkanPlatform.cpp
     Centauri/src/Render/vulkanRenderer.cpp
-    Centauri/src/Render/vulkanPipeline.cpp
     Centauri/src/Resources/renderAttachment.cpp
     Centauri/src/Resources/swapchain.cpp
-
+    Centauri/src/Resources/pipeline.cpp
 )
 set_target_properties (${TEMPLATE_NAME} PROPERTIES CXX_STANDARD 20)
 target_link_libraries (${TEMPLATE_NAME} Vulkan::cppm glfw)

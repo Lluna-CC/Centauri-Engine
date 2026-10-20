@@ -343,4 +343,24 @@ namespace Centauri {
 
 		return {std::move(image), std::move(imageMemory)};
 	}
+
+	vk::Format VulkanPlatform::findSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const {
+		for (vk::Format format : candidates) {
+			vk::FormatProperties props = physicalDev.getFormatProperties(format);
+
+			if (((tiling == vk::ImageTiling::eLinear) && ((props.linearTilingFeatures & features) == features)) ||
+				((tiling == vk::ImageTiling::eOptimal) && ((props.optimalTilingFeatures & features) == features))) 
+					return format;
+			
+			
+		}
+		throw std::runtime_error("failed to find supported format");
+	}
+
+	vk::raii::ShaderModule VulkanPlatform::createShaderModule(const std::vector<char>& code) const {
+		vk::ShaderModuleCreateInfo createInfo{.codeSize = code.size() * sizeof(char), .pCode = reinterpret_cast<const uint32_t*>(code.data())};
+		vk::raii::ShaderModule shaderModule{dev, createInfo};
+
+		return shaderModule;
+	}
 }

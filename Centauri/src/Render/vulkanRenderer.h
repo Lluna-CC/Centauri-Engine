@@ -14,6 +14,7 @@ namespace Centauri {
       public:
         VulkanRenderer(VulkanPlatform* plat, ResourceManager* resMngr);
 
+        virtual void SetWindowSize(int width, int height) override;
         //void SetPipeline(Pipeline* pipe) {pipeline = pipe}
 
       private:
@@ -29,19 +30,6 @@ namespace Centauri {
         ResourceHandle<Swapchain> swapchain;
         ResourceHandle<RenderAttachment> colorAttachment;
         ResourceHandle<RenderAttachment> depthAttachment;
-        
-        ////////////////////////////////////////////////////
-        /*
-        std::vector<vk::raii::ImageView> swapChainImageViews;
-        vk::raii::Image colorImage = nullptr;
-        vk::raii::DeviceMemory colorImageMemory = nullptr;
-        vk::raii::ImageView colorImageView = nullptr;
-        
-        vk::raii::Image depthImage = nullptr;
-        vk::raii::DeviceMemory depthImageMemory = nullptr;
-        vk::raii::ImageView depthImageView = nullptr;
-        */
-        //////////////////////////////////////////////////
 
         std::vector<vk::raii::CommandBuffer> graphicsCommandBuffers;
                 
@@ -50,7 +38,7 @@ namespace Centauri {
 
         vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
 
-        Pipeline* pipeline;
+        //Pipeline* pipeline;
 
         
         

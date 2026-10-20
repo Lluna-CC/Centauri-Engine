@@ -13,22 +13,30 @@ namespace Centauri {
 	
 		graphicsCommandBuffers = platform -> CreateCommandBuffers(MAX_FRAMES_IN_FLIGHT);
     
-		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, 0, 0);
-		//colorAttachment = resourceManager -> Load<RenderAttachment>();
+		
 		/*
-	
-		dev = plat.GetDevice();
-		swapChain = plat.GetSwapChain();
 		renderQueue = plat.GetGraphicsQueue();
-		swapChainExtent = plat.GetSwapChainExtent();
-		swapChainSurfaceFormat = plat.GetSwapChainSurfaceFormat();
-		swapChainImages = swapChain.getImages();
 		*/
-
-		//createImageViews();
-		//createCommandPools(plat.GetGraphicsQueueIdx());
-		//createColorResources(plat.GetGraphicsQueueIdx(), plat.GetMemoryProperties());
 	}
+
+	void VulkanRenderer::SetWindowSize(int width, int height) {
+		
+		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, width, height);
+		
+		colorAttachment = resourceManager -> Load<RenderAttachment>(
+			"Color_Attachment", platform, width, height,
+			vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
+			swapchain -> GetFormat().format
+		);
+
+		vk::Format depthFormat = platform -> findSupportedFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint}, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+		depthAttachment = resourceManager -> Load<RenderAttachment>(
+			"Depth_Attachment", platform, width, height,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment,
+			depthFormat
+		);
+	}
+
     
     Renderer* Renderer::CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr) {
 

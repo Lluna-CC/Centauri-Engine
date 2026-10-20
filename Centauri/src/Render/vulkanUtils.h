@@ -1,5 +1,4 @@
-#ifndef VULKAN_UTILS_H
-#define VULKAN_UTILS_H
+#pragma once
 
 #include <vulkan/vulkan_raii.hpp>
 #include <fstream>
@@ -45,4 +44,3 @@ namespace Centauri {
 
 }
 
-#endif //VULKAN_UTILS_H

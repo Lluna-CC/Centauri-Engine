@@ -1,5 +1,5 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef RENDERATTACHMENT_H
+#define RENDERATTACHMENT_H
 
 
 #include "resource.h"
@@ -44,4 +44,4 @@ namespace Centauri {
     };
 }     
 
-#endif //IMAGE_H 
+#endif //RENDERATTACHMENT_H
