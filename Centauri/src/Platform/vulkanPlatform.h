@@ -17,9 +17,7 @@ namespace Centauri {
         
         void SetFramesInFlight(uint frames_in_flight);
         
-        void CreateSwapChain(int width, int height, VkSwapchainKHR* swapChain, vk::Extent2D& swapChainExtent, 
-                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<VkImage>& swapChainImages 
-        );
+        void CreateSwapChain(int width, int height, vk::raii::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, vk::SurfaceFormatKHR& swapChainSurfaceFormat);
 
         vk::ImageView CreateImageView(VkImage const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels);
 
@@ -33,6 +31,11 @@ namespace Centauri {
         vk::raii::PipelineLayout CreatePipelineLayout(vk::PipelineLayoutCreateInfo pipeLayoutInfo) {return vk::raii::PipelineLayout(dev, pipeLayoutInfo);}
         vk::raii::Pipeline CreatePipeline(vk::GraphicsPipelineCreateInfo graphicsInfo) {return vk::raii::Pipeline(dev, nullptr, graphicsInfo);}
         vk::raii::Semaphore CreateSemaphore(vk::SemaphoreCreateInfo info) {return vk::raii::Semaphore(dev, info);}
+
+        void SubmitQueue(const vk::SubmitInfo& submitInfo, size_t frameIdx);
+
+        void WaitForFence(uint fenceIdx);
+        void ResetFence(uint fenceIdx);
 
       private:
 
@@ -53,14 +56,9 @@ namespace Centauri {
 	      vk::raii::Queue graphicsQueue = nullptr;
         
         vk::raii::SurfaceKHR surface = nullptr;
- 
-        //std::vector<vk::Image> swapChainImages;
-        //std::vector<vk::raii::ImageView> swapChainImageViews;
 
         vk::raii::CommandPool graphicsCommandPool = nullptr;
 
-        std::vector<vk::raii::Semaphore> presentCompleteSemaphores;
-        std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
         std::vector<vk::raii::Fence> inFlightFences;
 
         

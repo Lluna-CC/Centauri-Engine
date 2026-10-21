@@ -22,8 +22,8 @@ namespace Centauri {
             bool Load() override;
             void Unload() override;
 
-            vk::Image GetImage() const {return image;}
-            vk::ImageView GetImageView() const {return imageView;}
+            vk::Image& GetImage() {return image;}
+            vk::ImageView& GetImageView() {return imageView;}
 
         private:
             vk::Image image;

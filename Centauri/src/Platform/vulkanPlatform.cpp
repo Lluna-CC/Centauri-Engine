@@ -44,7 +44,6 @@ namespace Centauri {
 		ChoosePhysicalDevice();
 		CreateLogicalDevice();
 		
-		//CreateSwapChain(surf -> GetHeight(), surf -> GetWidth());
 		CreateCommandPools();
     }
 
@@ -207,8 +206,8 @@ namespace Centauri {
 		graphicsQueue = vk::raii::Queue(dev, graphicsQueueIndex, 0);
 	}
 
-    void VulkanPlatform::CreateSwapChain(int width, int height, VkSwapchainKHR* swapChain, vk::Extent2D& swapChainExtent, 
-                              vk::SurfaceFormatKHR& swapChainSurfaceFormat, std::vector<VkImage>& swapChainImages ) {
+    void VulkanPlatform::CreateSwapChain(int width, int height, vk::raii::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, 
+                              vk::SurfaceFormatKHR& swapChainSurfaceFormat) {
         vk::SurfaceCapabilitiesKHR capabilities = physicalDev.getSurfaceCapabilitiesKHR(*surface);
 		std::vector<vk::SurfaceFormatKHR> availableFormats = physicalDev.getSurfaceFormatsKHR(*surface);
 		std::vector<vk::PresentModeKHR> availablePresents = physicalDev.getSurfacePresentModesKHR(*surface);
@@ -251,16 +250,7 @@ namespace Centauri {
 
 		// I have no clue of what to do here
 		
-		
-		vkCreateSwapchainKHR(*dev, swapChainCreateInfo, nullptr, swapChain);
-		
-		uint32_t imgCount = capabilities.maxImageCount;
-		VkResult res = vkGetSwapchainImagesKHR(*dev, *swapChain, &imgCount, swapChainImages.data());
-		
-		// DEBUG THINGS
-		// if (res == ??) {
-		// 
-		// }
+		swapChain = vk::raii::SwapchainKHR(dev, swapChainCreateInfo);
 	
     }
 	
@@ -277,9 +267,8 @@ namespace Centauri {
     }
 
 	void VulkanPlatform::CreateSyncObjects(uint frames_in_flight) {
-		assert(presentCompleteSemaphores.empty() && renderFinishedSemaphores.empty() && inFlightFences.empty());
+		assert(inFlightFences.empty());
 		for (uint i = 0; i < frames_in_flight; ++i) {
-			presentCompleteSemaphores.emplace_back(dev, vk::SemaphoreCreateInfo());
 			inFlightFences.emplace_back(dev, vk::FenceCreateInfo{.flags = vk::FenceCreateFlagBits::eSignaled});
 		}
 	}
@@ -358,5 +347,20 @@ namespace Centauri {
 		vk::raii::ShaderModule shaderModule{dev, createInfo};
 
 		return shaderModule;
+	}
+
+	void VulkanPlatform::WaitForFence(uint fenceIdx) {
+		auto fenceResult = dev.waitForFences(*inFlightFences[fenceIdx], vk::True, UINT64_MAX);
+		if (fenceResult != vk::Result::eSuccess) {
+			throw std::runtime_error("failed to wait for fence!");
+		}
+	}
+
+	void VulkanPlatform::ResetFence(uint fenceIdx) {
+		dev.resetFences(*inFlightFences[fenceIdx]);
+	}
+
+	void VulkanPlatform::SubmitQueue(const vk::SubmitInfo& submitInfo, size_t frameIdx) {
+		graphicsQueue.submit(submitInfo, *inFlightFences[frameIdx]);
 	}
 }

@@ -19,15 +19,21 @@ namespace Centauri {
             vk::Extent2D GetExtent() {return swapChainExtent;}
             vk::SurfaceFormatKHR GetFormat() {return swapChainSurfaceFormat;}
 
+            vk::ResultValue<unsigned int> AcquireNextImage(vk::raii::Semaphore& sem);
+
+            vk::Image& GetImage(size_t imageIdx) {return swapChainImages[imageIdx];}
+            vk::ImageView& GetImageView(size_t imageIdx) {return swapChainImageViews[imageIdx];}
+            
+            size_t GetImageCount() {return swapChainImages.size();}
+
+
         private:
-            VkSwapchainKHR* swapChain;
+            vk::raii::SwapchainKHR swapChain = nullptr;
             vk::Extent2D swapChainExtent;
             vk::SurfaceFormatKHR swapChainSurfaceFormat;
 
-            std::vector<VkImage> swapChainImages;
+            std::vector<vk::Image> swapChainImages;
             std::vector<vk::ImageView> swapChainImageViews;
-            
-            std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
                 
             VulkanPlatform* vkPlat;
 

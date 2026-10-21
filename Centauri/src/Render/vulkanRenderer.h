@@ -5,7 +5,6 @@
 #include "renderer.h"
 #include <vector>
 #include "../Platform/vulkanPlatform.h"
-#include "pipeline.h"
 #include "../Resources/swapchain.h"
 #include "../Resources/renderAttachment.h"
 
@@ -19,6 +18,9 @@ namespace Centauri {
         virtual void StartRendering() override;
         //virtual void RenderObject() = 0;
         virtual void FinishRendering() override;
+        virtual void BindPipeline(ResourceHandle<Pipeline> pipeline) override;
+        virtual void BindVertexBuffer(ResourceHandle<VertexBuffer>  vbo) override {}
+      
 
       private:
         void InitializeRenderer();
@@ -41,6 +43,13 @@ namespace Centauri {
 
         vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
 
+        uint frameIdx = 0;
+
+        std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
+        std::vector<vk::raii::Semaphore> presentCompleteSemaphores;
+
+        bool renderStarted = false;
+        size_t imageIdx;
         //Pipeline* pipeline;
 
         

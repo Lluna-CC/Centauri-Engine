@@ -3,6 +3,9 @@
 
 #include "../Platform/renderPlatform.h"
 #include "../Resources/resource.h"
+#include "../Resources/pipeline.h"
+#include "../Resources/vertexBuffer.h"
+
 
 namespace Centauri {
     class Renderer {
@@ -16,6 +19,8 @@ namespace Centauri {
         virtual void StartRendering() = 0;
         //virtual void RenderObject() = 0;
         virtual void FinishRendering() = 0;
+        virtual void BindPipeline(ResourceHandle<Pipeline> pipeline) = 0;
+        virtual void BindVertexBuffer(ResourceHandle<VertexBuffer>  vbo) = 0;
       
       protected:
         

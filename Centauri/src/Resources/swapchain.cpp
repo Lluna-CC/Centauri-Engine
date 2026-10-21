@@ -2,21 +2,22 @@
 
 namespace Centauri {
     bool Swapchain::Load() {
-        vkPlat -> CreateSwapChain(width, height, swapChain, swapChainExtent, swapChainSurfaceFormat, swapChainImages);
-        
+        vkPlat -> CreateSwapChain(width, height, swapChain, swapChainExtent, swapChainSurfaceFormat);
+        swapChainImages = swapChain.getImages();
+
 		swapChainImageViews.reserve(swapChainImages.size());
 		for (auto &image : swapChainImages) {
 			swapChainImageViews.emplace_back(vkPlat -> CreateImageView(image, swapChainSurfaceFormat.format, vk::ImageAspectFlagBits::eColor, 1));
 		}
 
-        for (uint i = 0; i < swapChainImages.size(); ++i) {
-			renderFinishedSemaphores.push_back(vkPlat -> CreateSemaphore(vk::SemaphoreCreateInfo()));
-		}
-        
         return true;
     }
 
     void Swapchain::Unload() {
         //Unload swapchain ??
+    }
+
+    vk::ResultValue<unsigned int> Swapchain::AcquireNextImage(vk::raii::Semaphore& sem) {
+        return swapChain.acquireNextImage(UINT64_MAX, *sem, nullptr);
     }
 }

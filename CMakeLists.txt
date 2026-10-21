@@ -17,6 +17,7 @@ add_executable(${TEMPLATE_NAME}
     Centauri/src/Resources/renderAttachment.cpp
     Centauri/src/Resources/swapchain.cpp
     Centauri/src/Resources/pipeline.cpp
+    Centauri/src/Render/vulkanUtils.cpp
 )
 set_target_properties (${TEMPLATE_NAME} PROPERTIES CXX_STANDARD 20)
 target_link_libraries (${TEMPLATE_NAME} Vulkan::cppm glfw)

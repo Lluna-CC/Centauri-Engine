@@ -1,4 +1,5 @@
 #include "vulkanRenderer.h"
+#include "vulkanUtils.h"
 
 namespace Centauri {
 
@@ -13,7 +14,10 @@ namespace Centauri {
 	
 		graphicsCommandBuffers = platform -> CreateCommandBuffers(MAX_FRAMES_IN_FLIGHT);
     
-		
+		assert(presentCompleteSemaphores.empty());
+		for (uint i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+			presentCompleteSemaphores.push_back(platform -> CreateSemaphore(vk::SemaphoreCreateInfo()));
+		}
 		/*
 		renderQueue = plat.GetGraphicsQueue();
 		*/
@@ -35,18 +39,161 @@ namespace Centauri {
 			vk::ImageUsageFlagBits::eDepthStencilAttachment,
 			depthFormat
 		);
+
+		renderFinishedSemaphores.clear();
+		size_t imgCount = swapchain -> GetImageCount();
+		for (uint i = 0; i < imgCount; ++i) {
+			renderFinishedSemaphores.push_back(platform -> CreateSemaphore(vk::SemaphoreCreateInfo()));
+		}
 	}
 
     
     void VulkanRenderer::StartRendering() {
+		platform -> WaitForFence(frameIdx);
 		
+		auto [res, img] = swapchain -> AcquireNextImage(presentCompleteSemaphores[frameIdx]);
+		imageIdx = img;
+		
+		if (res == vk::Result::eErrorOutOfDateKHR) {
+			//recreateSwapChain();
+			//return;
+		}
+
+		if (res != vk::Result::eSuccess && res != vk::Result::eSuboptimalKHR) {
+			assert(res == vk::Result::eTimeout || res == vk::Result::eNotReady);
+			throw std::runtime_error("failed to acquire swap chain image!");
+		}
+
+		platform -> ResetFence(frameIdx);
+
+		vk::raii::CommandBuffer& commandBuffer = graphicsCommandBuffers[frameIdx];
+		
+		commandBuffer.begin({});
+		
+		transition_image_layout(
+			swapchain -> GetImage(imageIdx),
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eColorAttachmentOptimal,
+			{},
+			vk::AccessFlagBits2::eColorAttachmentWrite,
+			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+			vk::ImageAspectFlagBits::eColor,
+			commandBuffer
+		);
+
+		transition_image_layout(
+			depthAttachment -> GetImage(),
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eDepthAttachmentOptimal,
+			vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+			vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+			vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+			vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+			vk::ImageAspectFlagBits::eDepth,
+			commandBuffer
+		);
+
+		transition_image_layout(
+			colorAttachment -> GetImage(),
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eColorAttachmentOptimal,
+			vk::AccessFlagBits2::eColorAttachmentWrite,
+			vk::AccessFlagBits2::eColorAttachmentWrite,
+			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+			vk::ImageAspectFlagBits::eColor,
+			commandBuffer
+		);
+		
+		vk::ClearValue clearColor = vk::ClearColorValue(0.0f,0.0f,0.0f, 1.0f);
+		vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0.0f);
+
+		vk::RenderingAttachmentInfo colorAttachmentInfo = {
+			.imageView 		= colorAttachment -> GetImageView(),
+			.imageLayout	= vk::ImageLayout::eColorAttachmentOptimal,
+			.resolveMode 	= vk::ResolveModeFlagBits::eAverage,
+			.resolveImageView = swapchain -> GetImageView(imageIdx),
+			.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+			.loadOp			= vk::AttachmentLoadOp::eClear,
+			.storeOp		= vk::AttachmentStoreOp::eStore,
+			.clearValue		= clearColor
+		};
+
+		vk::RenderingAttachmentInfo depthAttachmentInfo = {
+			.imageView = depthAttachment -> GetImageView(),
+			.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
+			.loadOp = vk::AttachmentLoadOp::eClear,
+			.storeOp = vk::AttachmentStoreOp::eDontCare,
+			.clearValue = clearDepth
+		};
+
+		vk::RenderingInfo renderingInfo = {
+			.renderArea				= {.offset = {0,0}, .extent = swapchain -> GetExtent()},
+			.layerCount				= 1,
+			.colorAttachmentCount 	= 1,
+			.pColorAttachments 		= &colorAttachmentInfo,
+			.pDepthAttachment = &depthAttachmentInfo
+		};
+		
+		commandBuffer.beginRendering(renderingInfo);
+
+		vk::Extent2D extent = swapchain -> GetExtent();
+		commandBuffer.setViewport(0, vk::Viewport(0.0f,static_cast<float>(extent.height), static_cast<float>(extent.width), -static_cast<float>(extent.height), 0.0f, 1.0f));
+		commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), extent));
+
+		renderStarted = true;
 	}
     
 	void VulkanRenderer::FinishRendering() {
+		vk::raii::CommandBuffer& commandBuffer = graphicsCommandBuffers[frameIdx];
+		
+		commandBuffer.endRendering();
+		
+		transition_image_layout(
+			swapchain -> GetImage(imageIdx),
+			vk::ImageLayout::eColorAttachmentOptimal,
+			vk::ImageLayout::ePresentSrcKHR,
+			vk::AccessFlagBits2::eColorAttachmentWrite,
+			{},
+			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+			vk::PipelineStageFlagBits2::eBottomOfPipe,
+			vk::ImageAspectFlagBits::eColor,
+			commandBuffer
+		);
 
+		commandBuffer.end();
+
+		//Present command buffer
+		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+		const vk::SubmitInfo submitInfo{
+			.waitSemaphoreCount = 1,
+			.pWaitSemaphores	= &*presentCompleteSemaphores[frameIdx],
+			.pWaitDstStageMask	= &waitDestinationStageMask,
+			.commandBufferCount = 1,
+			.pCommandBuffers	= &*commandBuffer,
+			.signalSemaphoreCount = 1,
+			.pSignalSemaphores 	= &*renderFinishedSemaphores[imageIdx]
+		};
+
+		platform -> SubmitQueue(submitInfo, frameIdx);
+
+		//Present swapchain
+		/* const vk::PresentInfoKHR presentInfoKHR {
+			.waitSemaphoreCount	= 1,
+			.pWaitSemaphores	= &*renderFinishedSemaphores[imageIdx],
+			.swapchainCount		= 1,
+			.pSwapchains		= &*swapChain,
+			.pImageIndices		= &imageIdx
+		}; */
+
+		frameIdx = (frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 	
-	
+	void VulkanRenderer::BindPipeline(ResourceHandle<Pipeline> pipeline) {
+		graphicsCommandBuffers[frameIdx].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline -> GetPipeline());
+	}
+
 	Renderer* Renderer::CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr) {
 
         return new VulkanRenderer(dynamic_cast<VulkanPlatform*> (plat), resMngr);

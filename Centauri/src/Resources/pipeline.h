@@ -22,6 +22,8 @@ namespace Centauri {
 
         bool Load() override;
         void Unload() override;
+
+        vk::raii::Pipeline& GetPipeline() {return vkPipeline;}
       
       private:
         vk::raii::Pipeline vkPipeline = nullptr; 
