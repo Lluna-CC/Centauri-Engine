@@ -1,5 +1,6 @@
 #include "vulkanRenderer.h"
 #include "vulkanUtils.h"
+#include <iostream>
 
 namespace Centauri {
 
@@ -22,7 +23,7 @@ namespace Centauri {
 		platform -> SetFramesInFlight(MAX_FRAMES_IN_FLIGHT);
 	}
 
-	void VulkanRenderer::SetWindowSize(int width, int height) {
+	void VulkanRenderer::InitializeWindow(int width, int height) {
 		
 		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, width, height);
 
@@ -51,6 +52,36 @@ namespace Centauri {
 
 	}
 
+	void VulkanRenderer::WindowResize(int width, int height) {
+		
+		/* We need to clean objects and recreate them, we should delete objects from manager
+		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, width, height);
+
+		colorAttachment = resourceManager -> Load<RenderAttachment>(
+			"Color_Attachment", platform, width, height,
+			vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
+			swapchain -> GetFormat().format, vk::ImageAspectFlagBits::eColor 
+		);
+		
+
+		vk::Format depthFormat = platform -> findSupportedFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint}, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+		depthAttachment = resourceManager -> Load<RenderAttachment>(
+			"Depth_Attachment", platform, width, height,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment,
+			depthFormat, vk::ImageAspectFlagBits::eDepth
+		);
+		
+		*/
+		renderFinishedSemaphores.clear();
+		size_t imgCount = swapchain -> GetImageCount();
+		
+		for (uint i = 0; i < imgCount; ++i) {
+			renderFinishedSemaphores.push_back(platform -> CreateSemaphore(vk::SemaphoreCreateInfo()));
+		}
+		
+
+	}
+
     
     void VulkanRenderer::StartRendering() {
 		platform -> WaitForFence(frameIdx);
@@ -59,8 +90,9 @@ namespace Centauri {
 		imageIdx = img;
 		
 		if (res == vk::Result::eErrorOutOfDateKHR) {
+			//std::cout << "Out of date swap ! " << std::endl;
 			//recreateSwapChain();
-			//return;
+			return;
 		}
 
 		if (res != vk::Result::eSuccess && res != vk::Result::eSuboptimalKHR) {
@@ -153,6 +185,8 @@ namespace Centauri {
 	}
     
 	void VulkanRenderer::FinishRendering() {
+		if (!renderStarted) return;
+
 		vk::raii::CommandBuffer& commandBuffer = graphicsCommandBuffers[frameIdx];
 		
 		commandBuffer.endRendering();
@@ -193,10 +227,20 @@ namespace Centauri {
 			.pSwapchains		= &*swapchain -> GetSwapchain(),
 			.pImageIndices		= &imageIdx
 		}; 
+		
+		vk::Result result = platform -> Present(presentInfoKHR);
+		renderStarted = false;
 
-		platform -> Present(presentInfoKHR);
+		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR  || framebufferResized) {
+			std::cout << "Out of date Swap 2 ! " << std::endl;
+		}
+
+		else {
+			assert(result == vk::Result::eSuccess);
+		}
 
 		frameIdx = (frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+		
 	}
 	
 	void VulkanRenderer::BindPipeline(ResourceHandle<Pipeline> pipeline) {

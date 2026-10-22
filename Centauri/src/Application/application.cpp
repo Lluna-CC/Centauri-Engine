@@ -1,11 +1,9 @@
 #include "application.h"
-
+#include "../Events/windowEvent.h"
+#include <iostream>
 
 constexpr uint32_t WIDTH  = 800;
 constexpr uint32_t HEIGHT = 600;
-
-#include <iostream>
-
 
 namespace Centauri {
    
@@ -24,12 +22,26 @@ namespace Centauri {
         if (e.IsInCategory(Centauri::EventCategory::Mouse)) {
             std::cout << "IS MOUSE !" << std::endl;
         }
+        if (e.IsInCategory(Centauri::EventCategory::Window)) {
+            std::cout << "Window event !" << std::endl;
+            EventDispatcher dispatcher(e);
+
+            dispatcher.Dispatch<WindowResizedEvent> ([this](const WindowResizedEvent& ev){
+                int w = ev.GetWidth();
+                int h = ev.GetHeight();
+
+                platform -> WaitDevice();
+                renderer -> WindowResize(w, h);
+            });
+            
+        }
     }
     
     void Application::Run() {
         std::cout << "Centauri Engine !!!" << std::endl;
 
         surface = Surface::CreateSurface();
+        
         std::cout << surface -> GetHeight() << std::endl;
         EventSystem* eSys = new EventSystem();
         eSys -> AddListener(this);
@@ -41,12 +53,12 @@ namespace Centauri {
         ResourceManager* resourceManager = new ResourceManager;
         renderer = Renderer::CreateRenderer(platform, resourceManager);
 
-        renderer -> SetWindowSize(surface -> GetWidth(), surface -> GetHeight());
+        renderer -> InitializeWindow(surface -> GetWidth(), surface -> GetHeight());
 
-        renderer -> StartRendering();
-        renderer -> FinishRendering();
         while (!(surface -> Closed())) {
-
+            surface -> OnUpdate();
+            renderer -> StartRendering();
+            renderer -> FinishRendering();
         }
     }
 

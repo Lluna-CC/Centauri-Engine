@@ -8,6 +8,7 @@ namespace Centauri {
       public:
         virtual ~RenderPlatform() = default;
 
+        virtual void WaitDevice() = 0;
         static RenderPlatform* CreateRenderPlatform(Surface* surf);
     };
 }

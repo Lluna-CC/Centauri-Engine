@@ -1,4 +1,5 @@
 #include "vulkanGLFWWindow.h"
+#include "../Events/windowEvent.h"
 
 namespace Centauri {
 
@@ -11,7 +12,7 @@ namespace Centauri {
     }
 
     void VulkanGLFWWindow::OnUpdate() {
-        
+        glfwPollEvents();
     }
 
     void VulkanGLFWWindow::Initialize() {
@@ -45,7 +46,12 @@ namespace Centauri {
     }
 
     void VulkanGLFWWindow::OnResize(GLFWwindow* window, int width, int height) {
-        
+        WindowResizedEvent windowResize(width, height);
+        auto surf = reinterpret_cast<VulkanGLFWWindow*>(glfwGetWindowUserPointer(window));
+        surf -> eventSystem -> PublishEvent(windowResize);
+
+        surf -> width = width;
+        surf -> height = height; 
     }
 
     bool VulkanGLFWWindow::Closed() const {

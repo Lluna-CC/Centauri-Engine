@@ -6,8 +6,8 @@ namespace Centauri {
       public:    
         MouseMovedEvent(float x_pos, float y_pos) : x(x_pos), y(y_pos) {}
 
-        float GetXPosition() {return x;}
-        float GetYPosition() {return y;}
+        float GetXPosition() const {return x;}
+        float GetYPosition() const {return y;}
 
         virtual int GetCategoryFlags() const override {
           return static_cast<int>(Centauri::EventCategory::Mouse) | static_cast<int>(Centauri::EventCategory::Input);
@@ -22,7 +22,7 @@ namespace Centauri {
       public:
         MouseButtonPressEvent(int button) : buttonCode(button) {}
 
-        int GetButton() {return buttonCode;}
+        int GetButton() const {return buttonCode;}
 
         virtual int GetCategoryFlags() const override {
           return static_cast<int>(Centauri::EventCategory::Mouse) | static_cast<int>(Centauri::EventCategory::Input);
@@ -39,7 +39,7 @@ namespace Centauri {
       public:
         MouseButtonReleasedEvent(int button) : buttonCode(button) {}
 
-        int GetButton() {return buttonCode;}
+        int GetButton() const {return buttonCode;}
 
         virtual int GetCategoryFlags() const override {
           return static_cast<int>(Centauri::EventCategory::Mouse) | static_cast<int>(Centauri::EventCategory::Input);

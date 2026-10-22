@@ -6,10 +6,10 @@ namespace Centauri {
       public:
         WindowResizedEvent(int w, int h) : width(w), height(h) {}
 
-        int GetWidth() {return width;}
-        int GetHeight() {return height;}
+        int GetWidth() const {return width;}
+        int GetHeight() const {return height;}
 
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Window}
+        virtual int GetCategoryFlags() const override {return static_cast<int> (Centauri::EventCategory::Window);}
         DEFINE_EVENT_TYPE(WindowResizedEvent);
 
       private:
@@ -18,9 +18,9 @@ namespace Centauri {
 
     class WindowClosedEvent: public Event {
       public:
-        WindowResizedEvent() {}
+        WindowClosedEvent() {}
 
-        virtual int GetCategoryFlags() const override {return Centauri::EventCategory::Window}
+        virtual int GetCategoryFlags() const override {return static_cast<int> (Centauri::EventCategory::Window);}
         DEFINE_EVENT_TYPE(WindowClosedEvent);
 
       private:

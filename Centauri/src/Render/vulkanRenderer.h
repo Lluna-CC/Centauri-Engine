@@ -13,14 +13,15 @@ namespace Centauri {
       public:
         VulkanRenderer(VulkanPlatform* plat, ResourceManager* resMngr);
 
-        virtual void SetWindowSize(int width, int height) override;
+        virtual void InitializeWindow(int width, int height) override;
+        virtual void WindowResize(int width, int height) override;
         
         virtual void StartRendering() override;
         //virtual void RenderObject() = 0;
         virtual void FinishRendering() override;
         virtual void BindPipeline(ResourceHandle<Pipeline> pipeline) override;
         virtual void BindVertexBuffer(ResourceHandle<VertexBuffer>  vbo) override {}
-      
+
 
       private:
         void InitializeRenderer();

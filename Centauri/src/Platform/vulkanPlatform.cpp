@@ -411,4 +411,8 @@ namespace Centauri {
 	vk::Result VulkanPlatform::Present(const vk::PresentInfoKHR& presentInfo) {
 		return graphicsQueue.presentKHR(presentInfo);
 	}
+
+	void VulkanPlatform::WaitDevice() {
+		dev.waitIdle();
+	}
 }
