@@ -17,7 +17,8 @@ namespace Centauri {
     }
 
 	VulkanPlatform::VulkanPlatform(VulkanSurface* surf) {
-		InitializePlatform(surf);
+		this -> surf = surf;
+		InitializePlatform();
 	}
 
 	void VulkanPlatform::SetFramesInFlight(uint frames_in_flight) {
@@ -46,7 +47,7 @@ namespace Centauri {
 		return extensions;
 	}
 
-    void VulkanPlatform::InitializePlatform(VulkanSurface* surf) {
+    void VulkanPlatform::InitializePlatform() {
         CreateInstance();
         SetupDebugMessenger();
 

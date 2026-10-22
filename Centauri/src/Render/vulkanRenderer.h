@@ -13,7 +13,7 @@ namespace Centauri {
       public:
         VulkanRenderer(VulkanPlatform* plat, ResourceManager* resMngr);
 
-        virtual void InitializeWindow(int width, int height) override;
+        
         virtual void WindowResize(int width, int height) override;
         
         virtual void StartRendering() override;
@@ -25,6 +25,7 @@ namespace Centauri {
 
       private:
         void InitializeRenderer();
+        void InitializeWindow(int width, int height);
 		  
         //Should we use shared pointers?
         VulkanPlatform* platform;

@@ -1,6 +1,5 @@
 #include "vulkanRenderer.h"
 #include "vulkanUtils.h"
-#include <iostream>
 
 namespace Centauri {
 
@@ -21,6 +20,8 @@ namespace Centauri {
 		}
 
 		platform -> SetFramesInFlight(MAX_FRAMES_IN_FLIGHT);
+
+		InitializeWindow(platform -> GetWidth(), platform -> GetHeight());
 	}
 
 	void VulkanRenderer::InitializeWindow(int width, int height) {
@@ -90,9 +91,8 @@ namespace Centauri {
 		imageIdx = img;
 		
 		if (res == vk::Result::eErrorOutOfDateKHR) {
-			//std::cout << "Out of date swap ! " << std::endl;
-			//recreateSwapChain();
-			return;
+			platform -> WaitDevice();
+            WindowResize(platform -> GetWidth(), platform -> GetHeight());
 		}
 
 		if (res != vk::Result::eSuccess && res != vk::Result::eSuboptimalKHR) {
@@ -232,7 +232,8 @@ namespace Centauri {
 		renderStarted = false;
 
 		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR  || framebufferResized) {
-			std::cout << "Out of date Swap 2 ! " << std::endl;
+			platform -> WaitDevice();
+            WindowResize(platform -> GetWidth(), platform -> GetHeight());
 		}
 
 		else {

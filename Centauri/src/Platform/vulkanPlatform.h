@@ -11,7 +11,7 @@ namespace Centauri {
       public:
         virtual ~VulkanPlatform();
 
-        virtual void InitializePlatform(VulkanSurface* surf);
+        virtual void InitializePlatform();
         VulkanPlatform(VulkanSurface* surf);
         
         std::vector<vk::raii::CommandBuffer> CreateCommandBuffers(uint count);
@@ -40,6 +40,9 @@ namespace Centauri {
         void ResetFence(uint fenceIdx);
         void WaitDevice() override;
 
+        int GetWidth() {return surf -> GetWidth();}
+        int GetHeight() {return surf -> GetHeight();}
+
       private:
 
         void CreateInstance();
@@ -49,6 +52,7 @@ namespace Centauri {
         void CreateCommandPools();
         void CreateSyncObjects(uint frames_in_flight);
     
+        VulkanSurface* surf;
         virtual std::vector<const char*> RequiredInstanceExtensions();
         
         vk::raii::Context context;

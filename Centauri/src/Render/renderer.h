@@ -13,8 +13,7 @@ namespace Centauri {
         virtual ~Renderer() = default;
 
         static Renderer* CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr);
-
-        virtual void InitializeWindow(int width, int height) = 0;
+        
         virtual void WindowResize(int width, int height) = 0;
 
         virtual void StartRendering() = 0;

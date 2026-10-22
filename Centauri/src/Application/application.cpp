@@ -30,8 +30,7 @@ namespace Centauri {
                 int w = ev.GetWidth();
                 int h = ev.GetHeight();
 
-                platform -> WaitDevice();
-                renderer -> WindowResize(w, h);
+                
             });
             
         }
@@ -52,8 +51,6 @@ namespace Centauri {
 
         ResourceManager* resourceManager = new ResourceManager;
         renderer = Renderer::CreateRenderer(platform, resourceManager);
-
-        renderer -> InitializeWindow(surface -> GetWidth(), surface -> GetHeight());
 
         while (!(surface -> Closed())) {
             surface -> OnUpdate();
