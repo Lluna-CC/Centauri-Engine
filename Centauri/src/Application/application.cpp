@@ -41,6 +41,10 @@ namespace Centauri {
         ResourceManager* resourceManager = new ResourceManager;
         renderer = Renderer::CreateRenderer(platform, resourceManager);
 
+        renderer -> SetWindowSize(surface -> GetWidth(), surface -> GetHeight());
+
+        renderer -> StartRendering();
+        renderer -> FinishRendering();
         while (!(surface -> Closed())) {
 
         }

@@ -47,7 +47,7 @@ namespace Centauri {
               //Failed to load
               return ResourceHandle<T>();
           }
-
+         
           typeResources[name] = resource;
           typeRefCounts[name] = 1;
 

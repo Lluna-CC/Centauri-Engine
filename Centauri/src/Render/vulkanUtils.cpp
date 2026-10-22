@@ -1,5 +1,6 @@
 
 #include "vulkanUtils.h"
+#include <iostream>
 
 namespace Centauri {
     vk::raii::ImageView createImageView(const vk::raii::Device& dev, vk::Image const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels) {
@@ -81,5 +82,15 @@ namespace Centauri {
 		
 	}
 
+	VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
+														  vk::DebugUtilsMessageTypeFlagsEXT type,
+														  const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
+
+	    if (severity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo) {
+			std::cerr << "validation layer: type " << to_string(type) << " msg: " << pCallbackData -> pMessage << std::endl;
+		}	
+			
+		return vk::False;
+	}
 }
 

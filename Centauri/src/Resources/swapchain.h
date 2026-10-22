@@ -22,9 +22,10 @@ namespace Centauri {
             vk::ResultValue<unsigned int> AcquireNextImage(vk::raii::Semaphore& sem);
 
             vk::Image& GetImage(size_t imageIdx) {return swapChainImages[imageIdx];}
-            vk::ImageView& GetImageView(size_t imageIdx) {return swapChainImageViews[imageIdx];}
+            vk::raii::ImageView& GetImageView(size_t imageIdx) {return swapChainImageViews[imageIdx];}
             
             size_t GetImageCount() {return swapChainImages.size();}
+            vk::raii::SwapchainKHR& GetSwapchain() {return swapChain;}
 
 
         private:
@@ -33,7 +34,7 @@ namespace Centauri {
             vk::SurfaceFormatKHR swapChainSurfaceFormat;
 
             std::vector<vk::Image> swapChainImages;
-            std::vector<vk::ImageView> swapChainImageViews;
+            std::vector<vk::raii::ImageView> swapChainImageViews;
                 
             VulkanPlatform* vkPlat;
 

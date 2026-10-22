@@ -18,33 +18,37 @@ namespace Centauri {
 		for (uint i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
 			presentCompleteSemaphores.push_back(platform -> CreateSemaphore(vk::SemaphoreCreateInfo()));
 		}
-		/*
-		renderQueue = plat.GetGraphicsQueue();
-		*/
+
+		platform -> SetFramesInFlight(MAX_FRAMES_IN_FLIGHT);
 	}
 
 	void VulkanRenderer::SetWindowSize(int width, int height) {
 		
 		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, width, height);
-		
+
 		colorAttachment = resourceManager -> Load<RenderAttachment>(
 			"Color_Attachment", platform, width, height,
 			vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
-			swapchain -> GetFormat().format
+			swapchain -> GetFormat().format, vk::ImageAspectFlagBits::eColor 
 		);
+		
 
 		vk::Format depthFormat = platform -> findSupportedFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint}, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 		depthAttachment = resourceManager -> Load<RenderAttachment>(
 			"Depth_Attachment", platform, width, height,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment,
-			depthFormat
+			depthFormat, vk::ImageAspectFlagBits::eDepth
 		);
+		
 
 		renderFinishedSemaphores.clear();
 		size_t imgCount = swapchain -> GetImageCount();
+		
 		for (uint i = 0; i < imgCount; ++i) {
 			renderFinishedSemaphores.push_back(platform -> CreateSemaphore(vk::SemaphoreCreateInfo()));
 		}
+		
+
 	}
 
     
@@ -109,10 +113,13 @@ namespace Centauri {
 		vk::ClearValue clearColor = vk::ClearColorValue(0.0f,0.0f,0.0f, 1.0f);
 		vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0.0f);
 
+		vk::ResolveModeFlagBits resolveFlags = vk::ResolveModeFlagBits::eNone;
+		if (msaaSamples != vk::SampleCountFlagBits::e1) resolveFlags = vk::ResolveModeFlagBits::eAverage;
+
 		vk::RenderingAttachmentInfo colorAttachmentInfo = {
 			.imageView 		= colorAttachment -> GetImageView(),
 			.imageLayout	= vk::ImageLayout::eColorAttachmentOptimal,
-			.resolveMode 	= vk::ResolveModeFlagBits::eAverage,
+			.resolveMode 	= resolveFlags,
 			.resolveImageView = swapchain -> GetImageView(imageIdx),
 			.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 			.loadOp			= vk::AttachmentLoadOp::eClear,
@@ -179,13 +186,15 @@ namespace Centauri {
 		platform -> SubmitQueue(submitInfo, frameIdx);
 
 		//Present swapchain
-		/* const vk::PresentInfoKHR presentInfoKHR {
+		const vk::PresentInfoKHR presentInfoKHR {
 			.waitSemaphoreCount	= 1,
 			.pWaitSemaphores	= &*renderFinishedSemaphores[imageIdx],
 			.swapchainCount		= 1,
-			.pSwapchains		= &*swapChain,
+			.pSwapchains		= &*swapchain -> GetSwapchain(),
 			.pImageIndices		= &imageIdx
-		}; */
+		}; 
+
+		platform -> Present(presentInfoKHR);
 
 		frameIdx = (frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 	}

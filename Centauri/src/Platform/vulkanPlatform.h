@@ -19,7 +19,7 @@ namespace Centauri {
         
         void CreateSwapChain(int width, int height, vk::raii::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, vk::SurfaceFormatKHR& swapChainSurfaceFormat);
 
-        vk::ImageView CreateImageView(VkImage const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels);
+        vk::raii::ImageView CreateImageView(vk::Image const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels);
 
         std::pair<vk::raii::Image, vk::raii::DeviceMemory> CreateImage(
           uint32_t width, uint32_t height, uint32_t levels, vk::SampleCountFlagBits numSamples, vk::Format format, 
@@ -33,6 +33,7 @@ namespace Centauri {
         vk::raii::Semaphore CreateSemaphore(vk::SemaphoreCreateInfo info) {return vk::raii::Semaphore(dev, info);}
 
         void SubmitQueue(const vk::SubmitInfo& submitInfo, size_t frameIdx);
+        vk::Result Present(const vk::PresentInfoKHR& presentInfo);
 
         void WaitForFence(uint fenceIdx);
         void ResetFence(uint fenceIdx);
@@ -40,6 +41,7 @@ namespace Centauri {
       private:
 
         void CreateInstance();
+        void SetupDebugMessenger();
         void ChoosePhysicalDevice();
         void CreateLogicalDevice();
         void CreateCommandPools();
@@ -60,6 +62,8 @@ namespace Centauri {
         vk::raii::CommandPool graphicsCommandPool = nullptr;
 
         std::vector<vk::raii::Fence> inFlightFences;
+
+        vk::raii::DebugUtilsMessengerEXT debugMessenger = nullptr;
 
         
     };

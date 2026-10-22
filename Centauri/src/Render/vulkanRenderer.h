@@ -43,13 +43,13 @@ namespace Centauri {
 
         vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
 
-        uint frameIdx = 0;
+        uint32_t frameIdx = 0;
 
         std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
         std::vector<vk::raii::Semaphore> presentCompleteSemaphores;
 
         bool renderStarted = false;
-        size_t imageIdx;
+        uint32_t imageIdx;
         //Pipeline* pipeline;
 
         

@@ -7,8 +7,7 @@ namespace Centauri {
 															vk::ImageTiling::eOptimal,
 															usage, 
 															vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-        imageView = vkPlat -> CreateImageView(image, format, vk::ImageAspectFlagBits::eColor, 1);	
+        imageView = std::move(vkPlat -> CreateImageView(image, format, aspectFlags, 1));	
         return true;
     }
 

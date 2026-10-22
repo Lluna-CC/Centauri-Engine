@@ -11,9 +11,9 @@ namespace Centauri {
     class RenderAttachment : public Resource {
         public:
             explicit RenderAttachment(const std::string& id, VulkanPlatform* plat, int w, int h, vk::ImageUsageFlags usg, vk::Format form,
-                            vk::SampleCountFlagBits msaa = vk::SampleCountFlagBits::e1) : 
+                            vk::ImageAspectFlags aspect, vk::SampleCountFlagBits msaa = vk::SampleCountFlagBits::e1) : 
                             Resource(id), vkPlat(plat), usage(usg), width(w), height(h),
-                            format(form), msaaSamples(msaa) {}
+                            format(form), aspectFlags(aspect), msaaSamples(msaa) {}
 
             ~RenderAttachment() override {
                 Unload();
@@ -22,15 +22,16 @@ namespace Centauri {
             bool Load() override;
             void Unload() override;
 
-            vk::Image& GetImage() {return image;}
-            vk::ImageView& GetImageView() {return imageView;}
+            vk::raii::Image& GetImage() {return image;}
+            vk::raii::ImageView& GetImageView() {return imageView;}
 
         private:
-            vk::Image image;
-            vk::DeviceMemory memory;
+            vk::raii::Image image = nullptr;
+            vk::raii::DeviceMemory memory = nullptr;
             vk::DeviceSize offset;
-            vk::ImageView imageView;
+            vk::raii::ImageView imageView = nullptr;
             vk::Format format;
+            vk::ImageAspectFlags aspectFlags;
 
             int width = 0;
             int height = 0;

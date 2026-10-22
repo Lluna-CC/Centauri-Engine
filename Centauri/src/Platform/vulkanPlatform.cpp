@@ -1,7 +1,15 @@
 #include "vulkanPlatform.h"
+#include "../Render/vulkanUtils.h"
 #include <map>
 
-#include <iostream>
+#ifdef NDEBUG
+constexpr bool enableValidationLayers = false;
+#else
+constexpr bool enableValidationLayers = true;
+#endif
+
+const std::vector<char const*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+
 namespace Centauri {
 
     VulkanPlatform::~VulkanPlatform() {
@@ -31,12 +39,17 @@ namespace Centauri {
 		auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 		std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+		if (enableValidationLayers) {
+			extensions.push_back("VK_EXT_debug_utils");
+		}
+
 		return extensions;
 	}
 
     void VulkanPlatform::InitializePlatform(VulkanSurface* surf) {
         CreateInstance();
-        
+        SetupDebugMessenger();
+
 		VkSurfaceKHR vkSurf = surf -> GetVulkanSurface(*inst);
 		surface = vk::raii::SurfaceKHR(inst, vkSurf);
         
@@ -68,10 +81,9 @@ namespace Centauri {
 		}
 
 		std::vector<char const*> requiredLayers;
-
-		/*if (enableValidationLayers) {
+		if (enableValidationLayers) {
 			requiredLayers.assign(validationLayers.begin(), validationLayers.end());
-		}*/
+		}
 
 		auto layerProperties = context.enumerateInstanceLayerProperties();
 		auto unsupportedLayerIt = std::ranges::find_if(requiredLayers, 
@@ -94,6 +106,24 @@ namespace Centauri {
 
 		inst = vk::raii::Instance(context, createInfo);
     }
+
+	void VulkanPlatform::SetupDebugMessenger() {
+				
+		if (!enableValidationLayers) return;
+
+		vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+                                                        vk::DebugUtilsMessageSeverityFlagBitsEXT::eError );
+
+		vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | 
+															vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | 
+															vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+
+		vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfoEXT{.messageSeverity = severityFlags,
+                                                                          .messageType     = messageTypeFlags,
+                                                                          .pfnUserCallback = &debugCallback};
+																	
+		debugMessenger = inst.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfoEXT);
+	}
 
     void VulkanPlatform::ChoosePhysicalDevice() {
 		auto physicalDevices = inst.enumeratePhysicalDevices();
@@ -206,6 +236,21 @@ namespace Centauri {
 		graphicsQueue = vk::raii::Queue(dev, graphicsQueueIndex, 0);
 	}
 
+	vk::PresentModeKHR ChoosePresentMode(const std::vector<vk::PresentModeKHR>& availablePresents) {
+		assert(std::ranges::any_of(availablePresents, [](const auto present) {return present == vk::PresentModeKHR::eFifo;}));
+		
+		//This could be a parameter somewhere
+		bool use_mailBox = false;
+		
+		if (use_mailBox) {
+			return std::ranges::any_of(availablePresents, [](const auto present) {return present == vk::PresentModeKHR::eMailbox;}) ?
+					vk::PresentModeKHR::eMailbox :
+					vk::PresentModeKHR::eFifo;
+		}
+		
+		return vk::PresentModeKHR::eFifo;
+	}
+
     void VulkanPlatform::CreateSwapChain(int width, int height, vk::raii::SwapchainKHR& swapChain, vk::Extent2D& swapChainExtent, 
                               vk::SurfaceFormatKHR& swapChainSurfaceFormat) {
         vk::SurfaceCapabilitiesKHR capabilities = physicalDev.getSurfaceCapabilitiesKHR(*surface);
@@ -230,7 +275,9 @@ namespace Centauri {
 		if (formatIt != availableFormats.end()) swapChainSurfaceFormat = *formatIt;
 		else swapChainSurfaceFormat = availableFormats[0];
 
-        vk::PresentModeKHR present;
+        vk::PresentModeKHR present = ChoosePresentMode(availablePresents);
+
+		
 		vk::SwapchainCreateInfoKHR swapChainCreateInfo{
 			.surface = *surface,
 			.minImageCount = minImageCount,
@@ -274,7 +321,7 @@ namespace Centauri {
 	}
 
 
-    vk::ImageView VulkanPlatform::CreateImageView(VkImage const &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels) {
+    vk::raii::ImageView VulkanPlatform::CreateImageView(const vk::Image &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t levels) {
 		vk::ImageViewCreateInfo imageViewCreateInfo{
 			.image = image,
 			.viewType = vk::ImageViewType::e2D,
@@ -282,9 +329,8 @@ namespace Centauri {
 			.subresourceRange = {.aspectMask = aspectFlags, .levelCount = levels, .layerCount = 1} 	 
 		};
 	
-		VkImageView* view = new VkImageView;
-		vkCreateImageView(*dev, &*imageViewCreateInfo, nullptr, view);
-		return vk::ImageView(*view);
+
+		return vk::raii::ImageView(dev, imageViewCreateInfo);
 	}
 	
 	uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, vk::PhysicalDeviceMemoryProperties memProperties) {
@@ -310,9 +356,7 @@ namespace Centauri {
 			.samples = numSamples,
 			.tiling = tiling, 
 			.usage = usage,
-			.sharingMode = vk::SharingMode::eConcurrent,
-			.queueFamilyIndexCount = 1,
-			.pQueueFamilyIndices = &graphicsQueueIndex
+			.sharingMode = vk::SharingMode::eExclusive,
 		};
 
 		vk::raii::Image image = vk::raii::Image(dev, imageInfo);
@@ -362,5 +406,9 @@ namespace Centauri {
 
 	void VulkanPlatform::SubmitQueue(const vk::SubmitInfo& submitInfo, size_t frameIdx) {
 		graphicsQueue.submit(submitInfo, *inFlightFences[frameIdx]);
+	}
+
+	vk::Result VulkanPlatform::Present(const vk::PresentInfoKHR& presentInfo) {
+		return graphicsQueue.presentKHR(presentInfo);
 	}
 }
