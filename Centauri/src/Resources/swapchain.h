@@ -27,6 +27,8 @@ namespace Centauri {
             size_t GetImageCount() {return swapChainImages.size();}
             vk::raii::SwapchainKHR& GetSwapchain() {return swapChain;}
 
+            void CleanSwapchain();
+            bool Reload(int w, int h);
 
         private:
             vk::raii::SwapchainKHR swapChain = nullptr;

@@ -54,16 +54,17 @@ namespace Centauri {
 
 	void VulkanRenderer::WindowResize(int width, int height) {
 		
-		/* We need to clean objects and recreate them, we should delete objects from manager
-		swapchain = resourceManager -> Load<Swapchain>("main_swapchain", platform, width, height);
-
+		swapchain -> CleanSwapchain();
+		swapchain -> Reload(width, height);
+		
+		resourceManager -> Release<RenderAttachment>("Color_Attachment");
 		colorAttachment = resourceManager -> Load<RenderAttachment>(
 			"Color_Attachment", platform, width, height,
 			vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
 			swapchain -> GetFormat().format, vk::ImageAspectFlagBits::eColor 
 		);
 		
-
+		resourceManager -> Release<RenderAttachment>("Depth_Attachment");
 		vk::Format depthFormat = platform -> findSupportedFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint}, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 		depthAttachment = resourceManager -> Load<RenderAttachment>(
 			"Depth_Attachment", platform, width, height,
@@ -71,7 +72,6 @@ namespace Centauri {
 			depthFormat, vk::ImageAspectFlagBits::eDepth
 		);
 		
-		*/
 		renderFinishedSemaphores.clear();
 		size_t imgCount = swapchain -> GetImageCount();
 		

@@ -20,4 +20,15 @@ namespace Centauri {
     vk::ResultValue<unsigned int> Swapchain::AcquireNextImage(vk::raii::Semaphore& sem) {
         return swapChain.acquireNextImage(UINT64_MAX, *sem, nullptr);
     }
+
+    void Swapchain::CleanSwapchain() {
+        swapChainImageViews.clear();
+        swapChain = nullptr;
+    }
+
+    bool Swapchain::Reload(int w, int h) {
+        width = w;
+        height = h;
+        return Load();
+    }
 }

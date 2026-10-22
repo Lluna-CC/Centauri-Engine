@@ -23,8 +23,8 @@ namespace Centauri {
 
         virtual void Initialize() = 0;
         virtual void OnUpdate() = 0;
-        virtual unsigned int GetWidth() const = 0;
-        virtual unsigned int GetHeight() const = 0;
+        virtual unsigned int GetWidth() = 0;
+        virtual unsigned int GetHeight() = 0;
         virtual bool Closed() const = 0;
         
         void SetEventSystem(EventSystem* eventSys) {eventSystem = eventSys;}
@@ -35,8 +35,8 @@ namespace Centauri {
         static Surface* CreateSurface(const SurfaceProps& props = SurfaceProps());
 
       protected:
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
         std::string title;
         EventSystem* eventSystem;
     };

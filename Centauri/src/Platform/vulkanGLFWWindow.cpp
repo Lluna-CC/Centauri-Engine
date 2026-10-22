@@ -28,12 +28,14 @@ namespace Centauri {
 
     }
 
-    unsigned int VulkanGLFWWindow::GetWidth() const {
-        //We have to ensure that we keep track of width and height during the resize events and the initial creation
+    unsigned int VulkanGLFWWindow::GetWidth() {
+        //With this we ensure the correct size
+		glfwGetFramebufferSize(window, &width, &height);
         return width;
     }
 
-    unsigned int VulkanGLFWWindow::GetHeight() const {
+    unsigned int VulkanGLFWWindow::GetHeight() {
+		glfwGetFramebufferSize(window, &width, &height);
         return height;
     }
 

@@ -16,8 +16,8 @@ namespace Centauri {
         virtual void OnUpdate() override;
 
         virtual void Initialize() override;
-        virtual unsigned int GetWidth() const override;
-        virtual unsigned int GetHeight() const override;
+        virtual unsigned int GetWidth() override;
+        virtual unsigned int GetHeight() override;
         virtual bool Closed() const override;
 
         virtual VkSurfaceKHR GetVulkanSurface(const VkInstance& instance) const override;
