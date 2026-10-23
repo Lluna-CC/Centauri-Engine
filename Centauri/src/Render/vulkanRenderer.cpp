@@ -101,10 +101,8 @@ namespace Centauri {
 		}
 
 		platform -> ResetFence(frameIdx);
-
-		vk::raii::CommandBuffer& commandBuffer = graphicsCommandBuffers[frameIdx];
 		
-		commandBuffer.begin({});
+		graphicsCommandBuffers[frameIdx].begin({});
 		
 		transition_image_layout(
 			swapchain -> GetImage(imageIdx),
@@ -115,7 +113,7 @@ namespace Centauri {
 			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 			vk::ImageAspectFlagBits::eColor,
-			commandBuffer
+			graphicsCommandBuffers[frameIdx]
 		);
 
 		transition_image_layout(
@@ -127,7 +125,7 @@ namespace Centauri {
 			vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
 			vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
 			vk::ImageAspectFlagBits::eDepth,
-			commandBuffer
+			graphicsCommandBuffers[frameIdx]
 		);
 
 		transition_image_layout(
@@ -139,7 +137,7 @@ namespace Centauri {
 			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 			vk::ImageAspectFlagBits::eColor,
-			commandBuffer
+			graphicsCommandBuffers[frameIdx]
 		);
 		
 		vk::ClearValue clearColor = vk::ClearColorValue(0.0f,0.0f,0.0f, 1.0f);
@@ -149,6 +147,13 @@ namespace Centauri {
 		if (msaaSamples != vk::SampleCountFlagBits::e1) resolveFlags = vk::ResolveModeFlagBits::eAverage;
 
 		vk::RenderingAttachmentInfo colorAttachmentInfo = {
+		    .imageView   = swapchain -> GetImageView(imageIdx),
+		    .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		    .loadOp      = vk::AttachmentLoadOp::eClear,
+		    .storeOp     = vk::AttachmentStoreOp::eStore,
+		    .clearValue  = clearColor};
+		
+		/*vk::RenderingAttachmentInfo colorAttachmentInfo = {
 			.imageView 		= colorAttachment -> GetImageView(),
 			.imageLayout	= vk::ImageLayout::eColorAttachmentOptimal,
 			.resolveMode 	= resolveFlags,
@@ -157,7 +162,7 @@ namespace Centauri {
 			.loadOp			= vk::AttachmentLoadOp::eClear,
 			.storeOp		= vk::AttachmentStoreOp::eStore,
 			.clearValue		= clearColor
-		};
+		};*/
 
 		vk::RenderingAttachmentInfo depthAttachmentInfo = {
 			.imageView = depthAttachment -> GetImageView(),
@@ -172,24 +177,18 @@ namespace Centauri {
 			.layerCount				= 1,
 			.colorAttachmentCount 	= 1,
 			.pColorAttachments 		= &colorAttachmentInfo,
-			.pDepthAttachment = &depthAttachmentInfo
+			//.pDepthAttachment = &depthAttachmentInfo
 		};
 		
-		commandBuffer.beginRendering(renderingInfo);
-
-		vk::Extent2D extent = swapchain -> GetExtent();
-		commandBuffer.setViewport(0, vk::Viewport(0.0f,static_cast<float>(extent.height), static_cast<float>(extent.width), -static_cast<float>(extent.height), 0.0f, 1.0f));
-		commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), extent));
+		graphicsCommandBuffers[frameIdx].beginRendering(renderingInfo);
 
 		renderStarted = true;
 	}
     
 	void VulkanRenderer::FinishRendering() {
 		if (!renderStarted) return;
-
-		vk::raii::CommandBuffer& commandBuffer = graphicsCommandBuffers[frameIdx];
 		
-		commandBuffer.endRendering();
+		graphicsCommandBuffers[frameIdx].endRendering();
 		
 		transition_image_layout(
 			swapchain -> GetImage(imageIdx),
@@ -200,10 +199,10 @@ namespace Centauri {
 			vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 			vk::PipelineStageFlagBits2::eBottomOfPipe,
 			vk::ImageAspectFlagBits::eColor,
-			commandBuffer
+			graphicsCommandBuffers[frameIdx]
 		);
 
-		commandBuffer.end();
+		graphicsCommandBuffers[frameIdx].end();
 
 		//Present command buffer
 		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
@@ -212,7 +211,7 @@ namespace Centauri {
 			.pWaitSemaphores	= &*presentCompleteSemaphores[frameIdx],
 			.pWaitDstStageMask	= &waitDestinationStageMask,
 			.commandBufferCount = 1,
-			.pCommandBuffers	= &*commandBuffer,
+			.pCommandBuffers	= &*graphicsCommandBuffers[frameIdx],
 			.signalSemaphoreCount = 1,
 			.pSignalSemaphores 	= &*renderFinishedSemaphores[imageIdx]
 		};
@@ -246,11 +245,20 @@ namespace Centauri {
 	
 	void VulkanRenderer::BindPipeline(ResourceHandle<Pipeline> pipeline) {
 		graphicsCommandBuffers[frameIdx].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline -> GetPipeline());
+
+		vk::Extent2D extent = swapchain -> GetExtent();
+		graphicsCommandBuffers[frameIdx].setViewport(0, vk::Viewport(0.0f,0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height), 0.0f, 1.0f));
+		graphicsCommandBuffers[frameIdx].setScissor(0, vk::Rect2D(vk::Offset2D(0,0), extent));
+	}
+
+	void VulkanRenderer::SillyRender() {
+		graphicsCommandBuffers[frameIdx].draw(3, 1, 0, 0);
 	}
 
 	Renderer* Renderer::CreateRenderer(RenderPlatform* plat, ResourceManager* resMngr) {
 
         return new VulkanRenderer(dynamic_cast<VulkanPlatform*> (plat), resMngr);
     }
+
 	
 }

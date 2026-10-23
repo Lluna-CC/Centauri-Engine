@@ -10,11 +10,15 @@ namespace Centauri {
     class Pipeline : public Resource {
       public:
         
-        explicit Pipeline(
+        /*explicit Pipeline(
             const std::string& id, VulkanPlatform* plat, const std::string& shader, vk::VertexInputBindingDescription bindingDesc,
             uint32_t attribCount, vk::VertexInputAttributeDescription* attributeDescs, vk::SampleCountFlagBits msaa = vk::SampleCountFlagBits::e1 
         ) : Resource(id), vkPlat(plat), shaderFile(shaderFile), bindingDescription(bindingDesc), 
-            attribCount(attribCount), attributeDescriptions(attributeDescs), msaaSamples(msaa) {}
+            attribCount(attribCount), attributeDescriptions(attributeDescs), msaaSamples(msaa) {} */
+
+        explicit Pipeline(
+            const std::string& id, VulkanPlatform* plat, const std::string& shader, vk::SampleCountFlagBits msaa = vk::SampleCountFlagBits::e1 
+        ) : Resource(id), vkPlat(plat), shaderFile(shader), msaaSamples(msaa) {}
 
         ~Pipeline() {
             Unload();

@@ -12,12 +12,13 @@ namespace Centauri {
 		
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
-		vk::PipelineVertexInputStateCreateInfo vertexInputInfo {
+		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
+		/*vk::PipelineVertexInputStateCreateInfo vertexInputInfo {
 			.vertexBindingDescriptionCount = 1,
 			.pVertexBindingDescriptions = &bindingDescription,
 			.vertexAttributeDescriptionCount = attribCount,
 			.pVertexAttributeDescriptions = attributeDescriptions
-		};
+		};*/
 
 		vk::PipelineInputAssemblyStateCreateInfo inputAssembly {.topology = vk::PrimitiveTopology::eTriangleList};
 		
@@ -31,13 +32,14 @@ namespace Centauri {
 															.rasterizerDiscardEnable = vk::False,
 															.polygonMode = vk::PolygonMode::eFill,
 															.cullMode = vk::CullModeFlagBits::eBack,
-															.frontFace = vk::FrontFace::eCounterClockwise,
+															.frontFace = vk::FrontFace::eClockwise,
 															.depthBiasEnable = vk::False,
 															.lineWidth = 1.0f
 
 		};
 
-		vk::PipelineMultisampleStateCreateInfo multisampling {.rasterizationSamples = msaaSamples, .sampleShadingEnable = vk::True, .minSampleShading = 0.2f};
+		vk::PipelineMultisampleStateCreateInfo multisampling {.rasterizationSamples = msaaSamples, .sampleShadingEnable = vk::False};
+		//vk::PipelineMultisampleStateCreateInfo multisampling {.rasterizationSamples = msaaSamples, .sampleShadingEnable = vk::True, .minSampleShading = 0.2f};
 
 		vk::PipelineColorBlendAttachmentState colorBlendAttachment{
 			.blendEnable = vk::False,
@@ -51,11 +53,12 @@ namespace Centauri {
 			.pAttachments = &colorBlendAttachment
 		};
 
-		vk::PipelineLayoutCreateInfo pipeLayoutInfo {
+		vk::PipelineLayoutCreateInfo pipeLayoutInfo{.setLayoutCount = 0, .pushConstantRangeCount = 0};
+		/*vk::PipelineLayoutCreateInfo pipeLayoutInfo {
 			.setLayoutCount = 1,
 			.pSetLayouts = &*descriptorSetLayout,
 			.pushConstantRangeCount = 0
-		};
+		};*/
 
 		pipelineLayout = vkPlat -> CreatePipelineLayout(pipeLayoutInfo);
 
@@ -68,23 +71,23 @@ namespace Centauri {
 		};
 
 		vk::Format depthFormat = vkPlat -> findSupportedFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint}, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-		
-        vk::GraphicsPipelineCreateInfo pipelineCreateInfo = {
-			.stageCount          = 2,
-		    .pStages             = shaderStages,
-		    .pVertexInputState   = &vertexInputInfo,
-		    .pInputAssemblyState = &inputAssembly,
-		    .pViewportState      = &viewportState,
-		    .pRasterizationState = &rasterizer,
-		    .pMultisampleState   = &multisampling,
-		    .pDepthStencilState  = &depthStencil,
-		    .pColorBlendState    = &colorBlending,
-		    .pDynamicState       = &dynamicState,
-		    .layout              = pipelineLayout,
-		    .renderPass          = nullptr
-        };
+		vk::Format swapChainFormat = vk::Format::eB8G8R8A8Srgb;
 
-		vkPipeline = vkPlat -> CreatePipeline(pipelineCreateInfo);
+        vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain = {
+		    {.stageCount          = 2,
+		     .pStages             = shaderStages,
+		     .pVertexInputState   = &vertexInputInfo,
+		     .pInputAssemblyState = &inputAssembly,
+		     .pViewportState      = &viewportState,
+		     .pRasterizationState = &rasterizer,
+		     .pMultisampleState   = &multisampling,
+		     .pColorBlendState    = &colorBlending,
+		     .pDynamicState       = &dynamicState,
+		     .layout              = pipelineLayout,
+		     .renderPass          = nullptr},
+		    {.colorAttachmentCount = 1, .pColorAttachmentFormats = &swapChainFormat}};
+
+		vkPipeline = vkPlat -> CreatePipeline(pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
         return true;
     }
 

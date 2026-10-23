@@ -32,3 +32,22 @@ target_link_libraries(VulkanCppModule INTERFACE Vulkan::Vulkan)
 target_compile_definitions(VulkanCppModule INTERFACE VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1 VULKAN_HPP_NO_STRUCT_CONSTRUCTORS=1)
 
 include_directories("src/Application")
+
+find_program(SLANGC_EXECUTABLE slangc HINTS $ENV{VULKAN_SDK}/bin REQUIRED)
+
+# Slang shader
+set (SHADER_TARGET ${TEMPLATE_NAME}_Shader)
+set (SHADERS_DIR ${CMAKE_SOURCE_DIR}/$<CONFIG>/shaders)
+set (SHADER_SOURCES "${CMAKE_SOURCE_DIR}/Centauri/src/Shaders/shader.slang")
+set (ENTRY_POINTS -entry vertMain -entry fragMain)
+add_custom_command(OUTPUT ${SHADERS_DIR} COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADERS_DIR})
+add_custom_command(
+  OUTPUT  ${SHADERS_DIR}/slang.spv
+  COMMAND ${SLANGC_EXECUTABLE} ${SHADER_SOURCES} -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name ${ENTRY_POINTS} -o ${SHADERS_DIR}/slang.spv
+  WORKING_DIRECTORY ${SHADERS_DIR}
+  DEPENDS ${SHADERS_DIR} ${SHADER_SOURCES}
+  COMMENT "Compiling Slang Shaders"
+  VERBATIM
+)
+add_custom_target(${SHADER_TARGET} DEPENDS ${SHADERS_DIR}/slang.spv)
+add_dependencies(${TEMPLATE_NAME} ${SHADER_TARGET})

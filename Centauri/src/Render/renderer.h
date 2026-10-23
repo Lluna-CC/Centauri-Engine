@@ -21,6 +21,7 @@ namespace Centauri {
         virtual void FinishRendering() = 0;
         virtual void BindPipeline(ResourceHandle<Pipeline> pipeline) = 0;
         virtual void BindVertexBuffer(ResourceHandle<VertexBuffer>  vbo) = 0;
+        virtual void SillyRender() = 0;
       
       protected:
         

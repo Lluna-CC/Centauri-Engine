@@ -1,5 +1,6 @@
 #include "application.h"
 #include "../Events/windowEvent.h"
+#include "../Resources/pipeline.h"
 #include <iostream>
 
 constexpr uint32_t WIDTH  = 800;
@@ -52,9 +53,13 @@ namespace Centauri {
         ResourceManager* resourceManager = new ResourceManager;
         renderer = Renderer::CreateRenderer(platform, resourceManager);
 
+        ResourceHandle<Pipeline> SillyPipeline = resourceManager -> Load<Pipeline>("Silly_pipe", dynamic_cast<VulkanPlatform*> (platform), "shaders/slang.spv"); 
+
         while (!(surface -> Closed())) {
             surface -> OnUpdate();
             renderer -> StartRendering();
+            renderer -> BindPipeline(SillyPipeline);
+            renderer -> SillyRender();
             renderer -> FinishRendering();
         }
     }
